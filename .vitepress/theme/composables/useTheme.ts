@@ -1,4 +1,5 @@
 import { onMounted, ref } from 'vue'
+import { applyFavicon } from '../lib/favicon'
 
 export type ThemeName = 'white' | 'dark' | 'sepia'
 export const THEMES: ThemeName[] = ['white', 'dark', 'sepia']
@@ -11,6 +12,7 @@ export function useTheme() {
   onMounted(() => {
     const t = document.documentElement.getAttribute('data-theme') as ThemeName | null
     if (t && THEMES.includes(t)) theme.value = t
+    applyFavicon(theme.value)
   })
 
   function setTheme(t: ThemeName) {
@@ -21,6 +23,7 @@ export function useTheme() {
     } catch {
       /* navegação privada ou armazenamento bloqueado: o tema vale só nesta visita */
     }
+    applyFavicon(t)
     listeners.forEach((fn) => fn(t))
   }
 
