@@ -158,34 +158,61 @@ const hash = (a: number, b = 0) => {
   const s = Math.sin(a * 12.9898 + b * 78.233) * 43758.5453
   return s - Math.floor(s)
 }
-/* distância de um ponto a um segmento de reta */
-function segDist(px: number, py: number, ax: number, ay: number, bx: number, by: number) {
-  const dx = bx - ax, dy = by - ay
-  const t = Math.max(0, Math.min(1, ((px - ax) * dx + (py - ay) * dy) / (dx * dx + dy * dy || 1)))
-  return Math.hypot(px - (ax + t * dx), py - (ay + t * dy))
+/* desenha traços grossos numa máscara (1 = forma), para silhuetas com linhas: cacto, coqueiros */
+function makeMask(w: number, h: number) {
+  const m = new Uint8Array(w * h)
+  const disc = (cx: number, cy: number, rad: number) => {
+    const r2 = rad * rad
+    for (let y = Math.floor(cy - rad); y <= Math.ceil(cy + rad); y++)
+      for (let x = Math.floor(cx - rad); x <= Math.ceil(cx + rad); x++)
+        if (x >= 0 && y >= 0 && x < w && y < h && (x - cx) ** 2 + (y - cy) ** 2 <= r2) m[y * w + x] = 1
+  }
+  const line = (x0: number, y0: number, x1: number, y1: number, r0: number, r1 = r0) => {
+    const steps = Math.ceil(Math.hypot(x1 - x0, y1 - y0) * 2) + 1
+    for (let i = 0; i <= steps; i++) {
+      const t = i / steps
+      disc(x0 + (x1 - x0) * t, y0 + (y1 - y0) * t, r0 + (r1 - r0) * t)
+    }
+  }
+  return { m, disc, line }
 }
 
 const deserto: Scene = (w, h, r) => {
-  const sx = w * 0.76, sy = h * 0.28, sr = h * 0.11
-  const ridges = [0, 1, 2].map((k) => (x: number) => h * (0.52 + 0.15 * k) - h * 0.08 * Math.sin(x / (55 + 25 * k) + k * 2.1))
-  const cx = w * 0.2
+  const hz = h * 0.58
+  const sx = w * 0.7, sy = h * 0.34, sr = h * 0.13
+  /* três camadas de dunas, do fundo para a frente: mais claras atrás, mais escuras na frente */
+  const layers = [
+    { base: h * 0.6, amp: h * 0.05, len: 70, lit: 0.82, dark: 0.6 },
+    { base: h * 0.72, amp: h * 0.08, len: 95, lit: 0.7, dark: 0.42 },
+    { base: h * 0.88, amp: h * 0.1, len: 130, lit: 0.58, dark: 0.24 }
+  ].map((l, k) => ({ ...l, crest: (x: number) => l.base - l.amp * (Math.sin(x / l.len + k * 1.9) + 0.35 * Math.sin(x / (l.len * 0.37) + k)) }))
+  /* saguaro: tronco e dois braços com cotovelo, em silhueta */
+  const cx = w * 0.17, ground = layers[2].crest(cx) + 3, tall = h * 0.5, th = Math.max(2.2, h * 0.028)
+  const { m, line } = makeMask(w, h)
+  line(cx, ground, cx, ground - tall, th)
+  line(cx, ground - tall * 0.45, cx - th * 3.2, ground - tall * 0.45, th * 0.8)
+  line(cx - th * 3.2, ground - tall * 0.45, cx - th * 3.2, ground - tall * 0.8, th * 0.8)
+  line(cx, ground - tall * 0.6, cx + th * 3, ground - tall * 0.6, th * 0.75)
+  line(cx + th * 3, ground - tall * 0.6, cx + th * 3, ground - tall * 0.92, th * 0.75)
   return make(w, h, (x, y) => {
-    let v = 0.84 - 0.18 * (y / h)
+    if (m[y * w + x]) return 0.03
+    /* céu: mais escuro em cima, brilhando perto do horizonte */
+    let v = 0.5 + 0.42 * Math.min(1, y / hz)
     const d = Math.hypot(x - sx, y - sy)
     if (d < sr) v = 1
-    else if (d < sr * 2.5) v += 0.18 * (1 - (d - sr) / (sr * 1.5))
-    ridges.forEach((ridge, k) => {
-      if (y > ridge(x)) {
-        const slope = ridge(x + 1) - ridge(x)
-        v = 0.62 - 0.2 * k + (slope > 0 ? 0.1 : -0.08)
+    else if (d < sr * 1.6) v = Math.max(v, 1 - (d - sr) / (sr * 0.6) * 0.15)
+    for (const l of layers) {
+      const cy = l.crest(x)
+      if (y > cy) {
+        /* lado virado para o sol (à direita) fica claro; o outro, na sombra */
+        const slope = l.crest(x + 1) - cy
+        /* sombra gradual conforme a inclinação: sobe para o sol = claro, desce = escuro */
+        const k = Math.max(0, Math.min(1, 0.5 + slope * 3))
+        v = l.dark + (l.lit - l.dark) * k
+        if (y - cy < 1.2) v = l.lit + 0.12
+        v += 0.06 * Math.sin((x + y * 3) / 5) * 0.5
       }
-    })
-    const cTop = h * 0.4, cBase = ridges[0](cx) + 4
-    if (Math.abs(x - cx) < 2.2 && y > cTop && y < cBase) v = 0.05
-    if (Math.abs(x - (cx - 7)) < 1.6 && y > h * 0.46 && y < h * 0.56) v = 0.05
-    if (Math.abs(x - (cx + 7)) < 1.6 && y > h * 0.43 && y < h * 0.52) v = 0.05
-    if (Math.abs(y - h * 0.56) < 1.4 && x > cx - 8 && x < cx) v = 0.05
-    if (Math.abs(y - h * 0.52) < 1.4 && x > cx && x < cx + 8) v = 0.05
+    }
     return v + (r() - 0.5) * 0.04
   })
 }
@@ -341,26 +368,48 @@ const estrada: Scene = (w, h, r) => {
 }
 
 const vulcao: Scene = (w, h, r) => {
-  const cx = w * 0.5, topY = h * 0.42
-  const puffs = Array.from({ length: 9 }, (_, k) => ({
-    x: cx + k * w * 0.06 + (hash(k) - 0.5) * 10,
-    y: topY - 6 - k * h * 0.045,
-    rad: h * 0.06 + k * h * 0.012
-  }))
+  const cx = w * 0.46, topY = h * 0.38, baseY = h * 0.95
+  const crater = w * 0.045
+  /* encosta côncava: estreita no topo, abrindo em curva até a base */
+  const halfAt = (y: number) => crater + (w * 0.34) * Math.pow((y - topY) / (baseY - topY), 1.6)
+  /* coluna de fumaça: muitos círculos sobrepostos subindo e indo para a direita */
+  const puffs = Array.from({ length: 26 }, (_, k) => {
+    const t = k / 25
+    return {
+      x: cx + t * w * 0.38 + Math.sin(t * 7) * w * 0.02,
+      y: topY - 3 - t * h * 0.34 - Math.sin(t * 3.2) * h * 0.04,
+      rad: h * (0.04 + 0.11 * t) * (0.85 + 0.3 * hash(k, 4))
+    }
+  })
+  const { m, line } = makeMask(w, h)
+  /* filetes de lava descendo pelas encostas */
+  for (const side of [-1, 1]) {
+    let x = cx + side * crater * 0.4, y = topY + 1
+    for (let i = 0; i < 18; i++) {
+      const ny = y + h * 0.018
+      const nx = cx + side * (halfAt(ny) * 0.55) + Math.sin(i * 1.3 + side) * 2
+      line(x, y, nx, ny, 0.9, 0.6)
+      x = nx
+      y = ny
+    }
+  }
   return make(w, h, (x, y) => {
-    let v = 0.88 - 0.3 * (y / h)
+    let v = 0.62 + 0.3 * (y / h)
     for (const p of puffs) {
       const d = Math.hypot(x - p.x, y - p.y)
-      if (d < p.rad) v = Math.min(v, 0.28 + 0.3 * (d / p.rad))
+      if (d < p.rad) {
+        /* fumaça mais clara em cima à esquerda, mais densa embaixo */
+        const shade = ((y - p.y) / p.rad + (x - p.x) / p.rad) * 0.1
+        v = Math.min(v, 0.26 + shade + 0.14 * ((topY - p.y) / (h * 0.4)))
+      }
     }
-    const half = (y - topY) * 1.15 + w * 0.05
-    if (y > topY && Math.abs(x - cx) < half) {
-      v = x > cx ? 0.12 : 0.25
-      if (y < topY + 5 && Math.abs(x - cx) < w * 0.04) v = 0.95
-      const lava = Math.abs(Math.abs(x - cx) - (y - topY) * 0.5 - 3 * Math.sin(y / 6))
-      if (lava < 1.2 && y < topY + h * 0.35) v = 0.9
+    if (y > topY && Math.abs(x - cx) < halfAt(y)) {
+      v = x < cx ? 0.24 : 0.1
+      if (m[y * w + x]) v = 0.92
+      if (y < topY + 3 && Math.abs(x - cx) < crater) v = 1
     }
-    return v + (r() - 0.5) * 0.04
+    if (y > baseY) v = 0.06
+    return v + (r() - 0.5) * 0.05
   })
 }
 
@@ -398,30 +447,62 @@ const nuvens: Scene = (w, h, r) => {
 }
 
 const coqueiros: Scene = (w, h, r) => {
-  const hz = h * 0.6
-  const palms = [
-    { x: w * 0.16, base: h * 1.0, H: h * 0.72, lean: 0.12 },
-    { x: w * 0.82, base: h * 1.0, H: h * 0.6, lean: -0.1 }
-  ]
-  const segs: [number, number, number, number][] = []
-  for (const p of palms) {
-    const tx = p.x + p.lean * p.H, ty = p.base - p.H
-    segs.push([p.x, p.base, tx, ty])
-    /* folhas: cada uma sobe e depois cai, em dois segmentos */
-    for (let k = 0; k < 7; k++) {
-      const a = Math.PI * (0.08 + (0.84 * k) / 6)
-      const len = h * 0.32
-      const mx = tx + Math.cos(a) * len * 0.55, my = ty - Math.sin(a) * len * 0.5
-      const ex = tx + Math.cos(a) * len, ey = ty - Math.sin(a) * len * 0.15 + len * 0.35
-      segs.push([tx, ty, mx, my], [mx, my, ex, ey])
+  const hz = h * 0.62
+  const sunR = h * 0.17
+  const { m, line } = makeMask(w, h)
+  const palm = (bx: number, height: number, lean: number) => {
+    /* tronco curvo, mais grosso na base, com anéis */
+    const n = 14
+    let px = bx, py = h
+    for (let i = 1; i <= n; i++) {
+      const t = i / n
+      const nx = bx + lean * height * Math.pow(t, 1.6)
+      const ny = h - height * t
+      line(px, py, nx, ny, Math.max(1.3, h * 0.022 * (1 - t * 0.5)), Math.max(1.2, h * 0.022 * (1 - t * 0.5)))
+      px = nx
+      py = ny
+    }
+    const tx = px, ty = py
+    /* folhas: espinha curva que sobe e cai, com folíolos pendendo */
+    const fronds = [-2.9, -2.5, -2.1, -1.7, -1.3, -0.9, -0.5]
+    for (const a0 of fronds) {
+      const dir = Math.cos(a0) < 0 ? -1 : 1
+      const len = h * (0.42 + 0.06 * Math.sin(a0 * 3))
+      const rise = -Math.sin(a0) * len * 0.45
+      let lx = tx, ly = ty
+      for (let i = 1; i <= 12; i++) {
+        const t = i / 12
+        const fx = tx + Math.cos(a0) * len * t
+        const fy = ty - rise * Math.sin(t * Math.PI * 0.75) + len * 0.55 * t * t
+        line(lx, ly, fx, fy, 1.1 * (1 - t * 0.5))
+        const leaf = len * 0.24 * (1 - t * 0.6)
+        if (i > 1) {
+          line(fx, fy, fx + dir * leaf * 0.35, fy + leaf, 0.6)
+          line(fx, fy, fx - dir * leaf * 0.15, fy + leaf * 0.85, 0.6)
+        }
+        lx = fx
+        ly = fy
+      }
     }
   }
+  palm(w * 0.13, h * 0.78, 0.18)
+  palm(w * 0.86, h * 0.64, -0.16)
   return make(w, h, (x, y) => {
-    let v = y < hz ? 0.42 + 0.4 * (y / hz) : 0.35 - 0.15 * ((y - hz) / (h - hz))
-    const d = Math.hypot(x - w * 0.5, y - hz)
-    if (y < hz && d < h * 0.16) v = 1
-    if (y >= hz && Math.abs(x - w * 0.5) < h * 0.16 * (1 - (y - hz) / (h - hz)) && (y - hz) % 3 < 1.5) v = 0.95
-    for (const [ax, ay, bx, by] of segs) if (segDist(x, y, ax, ay, bx, by) < 2.2) v = 0.03
+    if (m[y * w + x]) return 0.03
+    let v: number
+    if (y < hz) {
+      /* céu do pôr do sol: escuro em cima, claro no horizonte, com o sol meio afundado */
+      v = 0.3 + 0.55 * Math.pow(y / hz, 1.3)
+      const d = Math.hypot(x - w * 0.5, y - hz)
+      if (d < sunR) v = 1
+      else if (d < sunR * 1.8) v = Math.max(v, 0.95 - (d - sunR) / (sunR * 0.8) * 0.2)
+    } else {
+      /* mar escuro com o reflexo do sol em listras */
+      const t = (y - hz) / (h - hz)
+      v = 0.3 - 0.15 * t
+      const reach = sunR * (1 - t * 0.6)
+      if (Math.abs(x - w * 0.5) < reach && (y - hz) % 3 < 1.5) v = 0.9 - t * 0.3
+    }
     return v + (r() - 0.5) * 0.04
   })
 }
