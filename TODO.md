@@ -6,12 +6,13 @@ O que ficou para depois. Apague o item quando terminar.
 
 - [ ] Trocar ou apagar os posts de exemplo em `posts/` (`001-primeiro-registro`, `002-guia-de-markdown` e `003-tudo-que-o-markdown-faz`).
 
-## para publicar
+## domínio próprio
+
+O site está no ar em https://maylog.vercel.app, publicado sozinho a cada `git push`.
 
 - [ ] Escolher e registrar o domínio (Registro.br para `.com.br`, ou Cloudflare/Porkbun para `.com`, `.blog`, `.dev`).
-- [ ] Trocar `url` no `conteudo.yml` pelo domínio escolhido (usado nos links de compartilhar, nos feeds e no sitemap).
-- [ ] Escolher a hospedagem (Cloudflare Pages, Netlify, Vercel ou GitHub Pages) e ligar a publicação automática a cada envio para o GitHub.
-- [ ] Apontar o domínio para a hospedagem.
+- [ ] Adicionar o domínio na Vercel (Settings → Domains) e criar no registro os apontamentos DNS que ela pedir.
+- [ ] Trocar `url` no `conteudo.yml` pelo domínio novo (usado nos links de compartilhar, nos feeds e no sitemap).
 
 ## melhorias combinadas
 
