@@ -18,7 +18,7 @@
 # Dados gerais
 site:
   nome: maylog
-  autor: Mayke Erick
+  autor: Mayke Andrade
   url: https://maylog.com.br # domínio de exemplo: troque pelo seu quando tiver
   frase: registros sobre o que der vontade de escrever.
   frase_en: notes on whatever feels worth writing.
@@ -120,7 +120,7 @@ contato:
 ficha:
   - rotulo: nome
     rotulo_en: name
-    valor: Mayke Erick
+    valor: Mayke Andrade
 
   - rotulo: na internet
     rotulo_en: online
