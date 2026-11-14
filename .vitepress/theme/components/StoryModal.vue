@@ -126,6 +126,7 @@ const tip = () =>
   width: min(720px, 100%);
   max-height: 100%;
   overflow: auto;
+  overscroll-behavior: contain;
 }
 .modal-bar {
   display: flex;

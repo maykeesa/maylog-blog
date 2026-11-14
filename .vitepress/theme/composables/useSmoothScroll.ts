@@ -3,14 +3,19 @@ import type Lenis from 'lenis'
 /*
   Rolagem suave da página (roda do mouse e trackpad) com a biblioteca Lenis.
   Fica desligada para quem pediu "reduzir movimento" no sistema.
-  Áreas que rolam por dentro (listas dos filtros, janela dos stories, blocos de código)
+  Áreas que rolam por dentro na vertical (listas dos filtros, janela dos stories)
   continuam com a rolagem normal delas.
 */
 
 let lenis: Lenis | null = null
 let frame = 0
 
-const NESTED = '.pop, .hint, .modal-back, div[class*="language-"], [data-lenis-prevent]'
+/*
+  Só o que rola de verdade na vertical fica com a rolagem própria: a lista dos filtros e a janela dos stories.
+  (Blocos de código rolam só na horizontal; se a Lenis os ignorasse, o navegador rolaria a página
+  por conta própria no meio do movimento suave e a tela daria um tranco para cima.)
+*/
+const NESTED = '.pop ul, .modal-back, [data-lenis-prevent]'
 
 export async function startSmoothScroll() {
   if (lenis || typeof window === 'undefined') return

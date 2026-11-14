@@ -183,6 +183,7 @@ ul {
   margin: 0;
   padding: 4px 0;
   max-height: 232px;
+  overscroll-behavior: contain;
   overflow-y: auto;
 }
 .popopt {
