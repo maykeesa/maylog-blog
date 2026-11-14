@@ -7,6 +7,7 @@ import SiteFooter from './components/SiteFooter.vue'
 import Home from './pages/Home.vue'
 import Post from './pages/Post.vue'
 import Archive from './pages/Archive.vue'
+import About from './pages/About.vue'
 
 const { frontmatter, page } = useData()
 const layout = computed(() => {
@@ -31,6 +32,7 @@ const footline = computed(() => {
       <Home v-if="layout === 'home'" />
       <Post v-else-if="layout === 'post'" />
       <Archive v-else-if="layout === 'arquivo'" />
+      <About v-else-if="layout === 'sobre'" />
       <Content v-else />
     </main>
     <SiteFooter :footline="footline" />

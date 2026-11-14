@@ -44,5 +44,6 @@ Os posts `001` e `002` são exemplos: troque ou apague quando escrever os seus.
 
 ## onde editar o resto
 
-- `.vitepress/theme/site.ts`: frase do topo, bloco "agora", canais que acompanho, redes e contato.
+- `sobre.md`: o texto de apresentação da página sobre.
+- `.vitepress/theme/site.ts`: frase do topo, bloco "agora", canais que acompanho, redes, contato, ficha e colofão.
 - `.vitepress/theme/styles/tokens.css`: cores dos temas white, dark e sepia.

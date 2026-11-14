@@ -50,5 +50,24 @@ export const site = {
 
   contato: {
     email: 'maykeesa.contato@gmail.com'
-  }
+  },
+
+  /* ficha da página "sobre" (o contato entra sozinho no fim) */
+  ficha: [
+    { rotulo: 'nome', valor: 'Mayke Erick' },
+    { rotulo: 'na internet', valor: 'maykeesa' },
+    { rotulo: 'ocupação', valor: 'programador' },
+    { rotulo: 'tempo integral', valor: 'aprendiz da vida' },
+    { rotulo: 'interesses', valor: 'código, filmes, anime, jogos, música' }
+  ],
+
+  /* colofão: como o site é feito */
+  colofao: [
+    { rotulo: 'código', valor: 'Vue.js + TypeScript (VitePress), feito com ajuda de IA' },
+    { rotulo: 'textos', valor: 'arquivos Markdown, um por post' },
+    { rotulo: 'fontes', valor: 'Source Serif 4 e IBM Plex Mono' },
+    { rotulo: 'imagens', valor: 'banners convertidos em pontilhado de 1 bit' },
+    { rotulo: 'temas', valor: 'white, dark e sepia' },
+    { rotulo: 'inspiração', valor: 'weblogs do começo dos anos 2000' }
+  ]
 }
