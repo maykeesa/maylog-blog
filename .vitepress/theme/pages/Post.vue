@@ -192,6 +192,8 @@ const archiveLink = (key: 'tag' | 'tema', value: string) => withBase(`${href('/a
   display: block;
   border: 1px solid var(--rule);
   border-radius: 4px;
+  /* com largura e altura anotadas, a imagem encolhe na proporção certa para caber na coluna */
+  height: auto;
 }
 .post-body figure {
   margin: 2em 0;

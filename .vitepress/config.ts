@@ -9,6 +9,7 @@ import { feedDevServer, writeFeed } from './feed'
 import { ogHead, pageInfo, writeOgImages } from './og'
 import { codeTitle } from './codeTitle'
 import { containerLabels } from './containerLabels'
+import { imageDimensions } from './imageSize'
 
 /* Aplica o tema salvo antes da página aparecer, para não piscar no tema errado. */
 const themeBootstrap = `(function () {
@@ -72,6 +73,8 @@ export default defineConfig({
   markdown: {
     theme: codeTheme,
     lineNumbers: true,
+    /* imagens do texto só carregam quando o leitor chega perto delas */
+    image: { lazyLoading: true },
     /* títulos padrão dos blocos ::: tip / info / warning / danger / details */
     container: {
       tipLabel: 'dica',
@@ -84,6 +87,7 @@ export default defineConfig({
       md.use(footnote)
       md.use(codeTitle)
       md.use(containerLabels)
+      md.use(imageDimensions, process.cwd())
     }
   },
   /* mapa do site para buscadores (usa o domínio de site.ts) */
