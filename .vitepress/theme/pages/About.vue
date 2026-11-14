@@ -4,6 +4,7 @@ import { Content } from 'vitepress'
 import { data as posts } from '../data/posts.data'
 import { site } from '../site'
 import Section from '../components/Section.vue'
+import DitherArt from '../components/DitherArt.vue'
 
 const since = computed(() => posts[posts.length - 1]?.ano ?? '')
 const copyLabel = ref('copiar')
@@ -44,7 +45,7 @@ function goRedes() {
     <div class="about">
       <figure class="portrait">
         <slot name="portrait">
-          <div class="photo-ph" aria-hidden="true"></div>
+          <DitherArt :width="160" :height="180" scene="lua" :seed="2025" label="Espaço para foto, em pontilhado" />
         </slot>
         <figcaption>foto em pontilhado, como os banners</figcaption>
       </figure>
@@ -108,10 +109,6 @@ function goRedes() {
   margin: 0;
   border: 1px solid var(--rule);
   padding: 6px;
-}
-.photo-ph {
-  aspect-ratio: 8 / 9;
-  background: repeating-linear-gradient(45deg, var(--bar) 0 6px, transparent 6px 12px);
 }
 .portrait figcaption {
   font-family: var(--mono);

@@ -5,6 +5,7 @@ import { data as posts } from '../data/posts.data'
 import { site } from '../site'
 import Section from '../components/Section.vue'
 import LogList from '../components/LogList.vue'
+import DitherArt from '../components/DitherArt.vue'
 
 const RECENTES = 6
 const recentes = computed(() => posts.slice(0, RECENTES))
@@ -17,7 +18,7 @@ const agoraData = site.agora.atualizado.slice(8, 10) + '.' + site.agora.atualiza
 <template>
   <Section id="leiame" label="leia-me" side="arquivo 000">
     <div class="intro">
-      <slot name="art" />
+      <DitherArt :width="340" :height="96" shuffle label="Arte pontilhada aleatória" />
       <p>
         Isto é um weblog no sentido antigo: um registro. Escrevo sobre tecnologia, livros, filmes e o que mais
         aparecer, sem algoritmo e sem pressa. Cada entrada tem número, data e tema, como linhas de um arquivo de log.

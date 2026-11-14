@@ -8,6 +8,7 @@ import Home from './pages/Home.vue'
 import Post from './pages/Post.vue'
 import Archive from './pages/Archive.vue'
 import About from './pages/About.vue'
+import NotFound from './pages/NotFound.vue'
 
 const { frontmatter, page } = useData()
 const layout = computed(() => {
@@ -29,7 +30,8 @@ const footline = computed(() => {
   <div class="wrap">
     <SiteHeader :since="since" />
     <main>
-      <Home v-if="layout === 'home'" />
+      <NotFound v-if="page.isNotFound" />
+      <Home v-else-if="layout === 'home'" />
       <Post v-else-if="layout === 'post'" />
       <Archive v-else-if="layout === 'arquivo'" />
       <About v-else-if="layout === 'sobre'" />
