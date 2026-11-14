@@ -1,12 +1,17 @@
-import { computed } from 'vue'
+import { computed, toValue, type MaybeRefOrGetter } from 'vue'
 import { useData } from 'vitepress'
 import { data as allPosts, type Post } from '../data/posts.data'
 import { ASSUNTOS_EN, CENAS_EN, DICT, TEMAS_EN, type I18nKey, type Lang } from '../lib/i18n'
 
-/* Idioma da página atual (as páginas em /en/ são em inglês) e utilidades de tradução. */
-export function useI18n() {
+/*
+  Idioma da página atual (as páginas em /en/ são em inglês) e utilidades de tradução.
+  `langOf` força outro idioma: a 404 usa isso, porque o idioma dela sai do endereço digitado.
+*/
+export function useI18n(langOf?: MaybeRefOrGetter<Lang>) {
   const { lang: vpLang } = useData()
-  const lang = computed<Lang>(() => (vpLang.value?.startsWith('en') ? 'en' : 'pt'))
+  const lang = computed<Lang>(() =>
+    langOf !== undefined ? toValue(langOf) : vpLang.value?.startsWith('en') ? 'en' : 'pt'
+  )
 
   function t(key: I18nKey, vars: Record<string, string | number> = {}) {
     let s = DICT[lang.value][key] ?? DICT.pt[key] ?? key

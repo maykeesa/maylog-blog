@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { computed, onMounted, shallowRef } from 'vue'
 import { withBase } from 'vitepress'
-import { data as allPosts, type Post } from '../data/posts.data'
-import { DICT, TEMAS_EN, type I18nKey } from '../lib/i18n'
+import type { Post } from '../data/posts.data'
+import { useI18n } from '../composables/useI18n'
 import SceneArt from '../components/SceneArt.vue'
 import LogList from '../components/LogList.vue'
 
@@ -10,19 +10,9 @@ const path = shallowRef('')
 const stamp = shallowRef('')
 
 /* a 404 é uma página só; o idioma sai do endereço que a pessoa tentou abrir */
-const isEn = computed(() => path.value.startsWith('/en/') || path.value === '/en')
-const t = (k: I18nKey, vars: Record<string, string | number> = {}) => {
-  let s = DICT[isEn.value ? 'en' : 'pt'][k]
-  for (const [a, b] of Object.entries(vars)) s = s.replace(`{${a}}`, String(b))
-  return s
-}
-const posts = computed<Post[]>(() =>
-  isEn.value
-    ? allPosts.map((p) => ({ ...p, ...(p.en ?? {}), tema: TEMAS_EN[p.tema] ?? p.tema, url: p.enUrl, ptOnly: !p.en }))
-    : allPosts
-)
-const home = computed(() => (isEn.value ? '/en/' : '/'))
-const archive = computed(() => (isEn.value ? '/en/arquivos' : '/arquivos'))
+const { t, href, posts } = useI18n(() => (path.value.startsWith('/en/') || path.value === '/en' ? 'en' : 'pt'))
+const home = computed(() => href('/'))
+const archive = computed(() => href('/arquivos'))
 
 onMounted(() => {
   path.value = decodeURIComponent(location.pathname)
