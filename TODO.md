@@ -15,7 +15,6 @@ O que ficou para depois. Apague o item quando terminar.
 
 ## melhorias combinadas
 
-- [ ] Agendar posts: post com `data` no futuro só aparece quando a data chega, com um build automático diário.
 - [ ] "ouvindo" do bloco agora se atualizando sozinho pelo Spotify ou stats.fm.
 - [ ] Contador de visitas de verdade: um serviço que responda `{"count": 1234}` a um POST (ex.: Cloudflare Worker com KV) e configurar `contador.url` no `conteudo.yml`.
 
@@ -26,6 +25,4 @@ O que ficou para depois. Apague o item quando terminar.
 
 ## pontos técnicos conhecidos
 
-- [ ] O e-mail saiu do HTML gerado, mas ainda aparece no JavaScript do site. Para esconder de vez, guardar codificado no `conteudo.yml`.
-- [ ] A página 404 é montada só no navegador (o HTML gerado vem vazio); com JavaScript desligado ela não aparece.
 - [ ] Testar tudo no navegador e no celular, nos três temas e nos dois idiomas (incluindo o zoom no Firefox).
