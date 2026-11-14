@@ -39,14 +39,18 @@ async function fromServer(url: string) {
   const counted = get(() => sessionStorage, SESSION) !== null
   const saved = get(() => localStorage, VISITOR)
   const known = saved !== null
-  const r = await fetch(counted ? url : `${url}${url.includes('?') ? '&' : '?'}novo=${known ? 0 : 1}`, {
-    method: counted ? 'GET' : 'POST'
-  })
+  /*
+    sessão nova: POST (com novo=1 se o navegador ainda não tem posição)
+    sessão já contada, mas sem posição salva: POST só do visitante (novo=1&visita=0)
+    sessão já contada e com posição: GET, só lê
+  */
+  const query = !counted ? `novo=${known ? 0 : 1}` : !known ? 'novo=1&visita=0' : ''
+  const r = await fetch(query ? `${url}${url.includes('?') ? '&' : '?'}${query}` : url, { method: query ? 'POST' : 'GET' })
   const j = await r.json()
   if (typeof j.count !== 'number') throw new Error('resposta inesperada')
   /* só marca depois que o servidor respondeu, para uma falha não perder a contagem */
   if (!counted) set(() => sessionStorage, SESSION, '1')
-  if (!counted && !known) {
+  if (!known) {
     /* visitante novo: o total que o servidor devolveu é a posição dele */
     set(() => localStorage, VISITOR, String(j.count))
     mine.value = site.contador.base + j.count

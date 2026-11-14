@@ -2,9 +2,10 @@ import { Redis } from '@upstash/redis'
 
 /*
   Contador de visitas do rodapé, rodando como função da Vercel em maylog.net/api/contador.
-    POST            → soma uma visita
-    POST ?novo=1    → soma uma visita e um visitante (primeira vez daquele navegador)
-    GET             → só lê os totais
+    POST                    → soma uma visita
+    POST ?novo=1            → soma uma visita e um visitante (primeira vez daquele navegador)
+    POST ?novo=1&visita=0   → soma só o visitante (a visita desta sessão já tinha sido contada)
+    GET                     → só lê os totais
   Sempre devolve {"count": visitantes, "visitas": visitas}.
 
   Quem decide se o visitante é novo é o próprio navegador (um sinal no localStorage),
@@ -13,8 +14,8 @@ import { Redis } from '@upstash/redis'
   (variáveis KV_REST_API_URL e KV_REST_API_TOKEN).
 */
 
-const VISITAS = 'contador:visitas'
-const VISITANTES = 'contador:visitantes'
+const VISITAS = 'contador:total-visitas'
+const VISITANTES = 'contador:total-visitantes'
 
 const redis = new Redis({
   url: process.env.KV_REST_API_URL ?? process.env.UPSTASH_REDIS_REST_URL ?? '',
@@ -29,7 +30,13 @@ function reply(visitantes: unknown, visitas: unknown) {
 }
 
 export async function POST(request: Request) {
-  const novo = new URL(request.url).searchParams.get('novo') === '1'
+  const params = new URL(request.url).searchParams
+  const novo = params.get('novo') === '1'
+  const visita = params.get('visita') !== '0'
+  if (novo && !visita) {
+    const [visitantes, visitas] = await Promise.all([redis.incr(VISITANTES), redis.get<number>(VISITAS)])
+    return reply(visitantes, visitas)
+  }
   if (novo) {
     const [visitas, visitantes] = await redis.pipeline().incr(VISITAS).incr(VISITANTES).exec<[number, number]>()
     return reply(visitantes, visitas)
