@@ -49,6 +49,11 @@ const guesses = computed<Post[]>(() => {
     .map((x) => x.p)
 })
 const suggestions = computed(() => (guesses.value.length ? guesses.value : posts.slice(0, 3)))
+
+function focusSearch() {
+  window.scrollTo(0, 0)
+  document.getElementById('q')?.focus()
+}
 </script>
 
 <template>
@@ -65,7 +70,8 @@ const suggestions = computed(() => (guesses.value.length ? guesses.value : posts
     </h2>
     <LogList :posts="suggestions" />
     <p class="err-actions">
-      <a :href="withBase('/')">← voltar ao log</a><span>·</span><a :href="withBase('/arquivos')">ver arquivos</a>
+      <a :href="withBase('/')">← voltar ao log</a><span>·</span><a :href="withBase('/arquivos')">ver arquivos</a><span>·</span
+      ><button type="button" class="linkbtn" @click="focusSearch">buscar no site</button>
     </p>
   </section>
 </template>
