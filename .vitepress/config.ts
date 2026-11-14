@@ -2,6 +2,7 @@ import { defineConfig } from 'vitepress'
 import { createCssVariablesTheme } from 'shiki'
 import footnote from 'markdown-it-footnote'
 import { ditherBanners } from './banners'
+import { writeFeed } from './feed'
 
 /* Aplica o tema salvo antes da página aparecer, para não piscar no tema errado. */
 const themeBootstrap = `(function () {
@@ -41,6 +42,7 @@ export default defineConfig({
       md.use(footnote)
     }
   },
+  buildEnd: writeFeed,
   /* o título da aba vem do "titulo" do post */
   transformPageData(pageData) {
     const t = pageData.frontmatter.titulo
@@ -50,6 +52,7 @@ export default defineConfig({
     ['link', { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' }],
     ['link', { rel: 'icon', type: 'image/png', sizes: '32x32', href: '/favicon-32.png' }],
     ['link', { rel: 'apple-touch-icon', href: '/apple-touch-icon.png' }],
+    ['link', { rel: 'alternate', type: 'application/rss+xml', title: 'maylog', href: '/feed.xml' }],
     ['link', { rel: 'preconnect', href: 'https://fonts.googleapis.com' }],
     ['link', { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' }],
     [
