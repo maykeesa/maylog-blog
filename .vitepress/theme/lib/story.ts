@@ -1,6 +1,6 @@
 import type { Post } from '../data/posts.data'
 import { bannerOf, loadBits } from './banners'
-import { sceneBits } from './dither'
+import { sceneUrl } from './scenes'
 import { sceneFor } from './sceneFor'
 
 /*
@@ -51,8 +51,9 @@ async function postBits(p: Post): Promise<{ bits: Uint8Array; w: number; h: numb
       /* sem banner: cai na cena */
     }
   }
-  const s = sceneFor(p)
-  return { bits: sceneBits(s.scene, s.seed, 340, 190), w: 340, h: 190 }
+  const url = sceneUrl(sceneFor(p))
+  if (url) return loadBits(url)
+  return { bits: new Uint8Array(340 * 190), w: 340, h: 190 }
 }
 
 function wrap(ctx: CanvasRenderingContext2D, text: string, maxW: number) {

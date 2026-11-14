@@ -5,7 +5,7 @@ import { site, par } from '../site'
 import { useI18n } from '../composables/useI18n'
 import Section from '../components/Section.vue'
 import LogList from '../components/LogList.vue'
-import DitherArt from '../components/DitherArt.vue'
+import SceneArt from '../components/SceneArt.vue'
 
 const { t, lang, entries, href, posts } = useI18n()
 const RECENTES = 6
@@ -19,7 +19,7 @@ const agora = computed(() => site.agora.itens.map((i) => par(i, lang.value)))
 <template>
   <Section id="leiame" :label="t('home.readme')" :side="t('home.file')">
     <div class="intro">
-      <DitherArt :width="340" :height="96" caption />
+      <SceneArt :ratio="340 / 96" caption />
       <p>{{ t('home.intro') }}</p>
     </div>
   </Section>

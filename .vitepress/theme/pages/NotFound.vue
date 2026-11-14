@@ -3,7 +3,7 @@ import { computed, onMounted, shallowRef } from 'vue'
 import { withBase } from 'vitepress'
 import { data as allPosts, type Post } from '../data/posts.data'
 import { DICT, TEMAS_EN, type I18nKey } from '../lib/i18n'
-import DitherArt from '../components/DitherArt.vue'
+import SceneArt from '../components/SceneArt.vue'
 import LogList from '../components/LogList.vue'
 
 const path = shallowRef('')
@@ -77,7 +77,7 @@ function focusSearch() {
     <pre class="errlog">{{ log }}</pre>
     <h1 class="e404">404<span class="cursor" aria-hidden="true"></span></h1>
     <p class="err-msg">{{ t('e404.msg') }}</p>
-    <DitherArt :width="340" :height="110" scene="sinal" :seed="404" :label="t('e404.art')" />
+    <SceneArt scene="404/sinal" :ratio="340 / 110" :label="t('e404.art')" />
     <h2 class="bar">
       <span class="rlbl">▸ {{ guesses.length ? t('e404.maybe') : t('e404.latest') }}</span>
     </h2>

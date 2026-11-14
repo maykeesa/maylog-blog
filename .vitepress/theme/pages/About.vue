@@ -4,7 +4,7 @@ import { Content } from 'vitepress'
 import { site, par } from '../site'
 import { useI18n } from '../composables/useI18n'
 import Section from '../components/Section.vue'
-import DitherArt from '../components/DitherArt.vue'
+import SceneArt from '../components/SceneArt.vue'
 import { smoothScrollTo } from '../composables/useSmoothScroll'
 
 const { t, lang, posts } = useI18n()
@@ -62,7 +62,7 @@ function goRedes() {
     <div class="about">
       <figure class="portrait">
         <slot name="portrait">
-          <DitherArt :width="160" :height="180" scene="lua" :seed="2025" :label="t('about.photo')" />
+          <SceneArt scene="eclipse" :ratio="160 / 180" :label="t('about.photo')" />
         </slot>
         <figcaption>{{ t('about.photo') }}</figcaption>
       </figure>

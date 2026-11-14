@@ -47,29 +47,62 @@ export function ditherOutput(file: string) {
   return file.replace(/\.[^.]+$/, '.dither.png')
 }
 
-async function convert(src: string, out: string, contraste: string) {
-  const a = CONTRASTE[contraste] ?? CONTRASTE.normal
-  const { data } = await sharp(src)
-    .rotate()
-    .resize(BANNER_W, BANNER_H, { fit: 'cover', position: 'attention' })
-    .grayscale()
-    .normalise()
-    .linear(a, -(128 * (a - 1)))
-    .raw()
-    .toBuffer({ resolveWithObject: true })
-  const gray = new Float32Array(BANNER_W * BANNER_H)
-  for (let i = 0; i < gray.length; i++) gray[i] = data[i] / 255
-  const bits = atkinson(gray, BANNER_W, BANNER_H)
-  const rgba = Buffer.alloc(BANNER_W * BANNER_H * 4)
+/*
+  - Banners: cortados em 16:9 (340×190) na parte com mais detalhe.
+  - Cenas (keepShape): mantêm o formato da imagem, só reduzidas para 340 de largura.
+  Fotos coloridas ganham o tratamento completo (escala de tons esticada e contraste);
+  imagens que já vêm em tons de cinza, como as cenas exportadas, são pontilhadas como estão.
+*/
+async function convert(src: string, out: string, contraste: string, keepShape = false) {
+  const meta = await sharp(src).metadata()
+  const faithful = meta.space === 'b-w' || (meta.channels as number) === 1
+  const a = faithful ? 1 : (CONTRASTE[contraste] ?? CONTRASTE.normal)
+  let img = sharp(src).rotate()
+  img = keepShape
+    ? img.resize({ width: BANNER_W })
+    : img.resize(BANNER_W, BANNER_H, { fit: 'cover', position: faithful ? 'centre' : 'attention' })
+  img = img.grayscale()
+  if (!faithful) img = img.normalise().linear(a, -(128 * (a - 1)))
+  const { data, info } = await img.raw().toBuffer({ resolveWithObject: true })
+  const w = info.width, h = info.height
+  const gray = new Float32Array(w * h)
+  for (let i = 0; i < gray.length; i++) gray[i] = data[i * info.channels] / 255
+  const bits = atkinson(gray, w, h)
+  const rgba = Buffer.alloc(w * h * 4)
   for (let i = 0; i < bits.length; i++) rgba[i * 4 + 3] = bits[i] ? 255 : 0
-  await sharp(rgba, { raw: { width: BANNER_W, height: BANNER_H, channels: 4 } })
+  await sharp(rgba, { raw: { width: w, height: h, channels: 4 } })
     .png({ compressionLevel: 9 })
     .toFile(out)
 }
 
 const mtime = (f: string) => (fs.existsSync(f) ? fs.statSync(f).mtimeMs : 0)
 
+/* lista as imagens de uma pasta e das subpastas (sem as versões já pontilhadas) */
+function imagesIn(dir: string): string[] {
+  if (!fs.existsSync(dir)) return []
+  return fs.readdirSync(dir, { withFileTypes: true }).flatMap((e) => {
+    const p = path.join(dir, e.name)
+    if (e.isDirectory()) return imagesIn(p)
+    return /\.(jpe?g|png|webp)$/i.test(e.name) && !e.name.endsWith('.dither.png') ? [p] : []
+  })
+}
+
+/* cenas pontilhadas da home e da 404: cenas/home/*.jpg e cenas/404/*.jpg */
+async function ditherScenes(root: string, log: (m: string) => void) {
+  for (const src of imagesIn(path.join(root, 'cenas'))) {
+    const out = ditherOutput(src)
+    if (mtime(out) >= mtime(src)) continue
+    try {
+      await convert(src, out, 'normal', true)
+      log(`[maylog] cena pontilhada: ${path.relative(root, out).replace(/\\/g, '/')}`)
+    } catch (e) {
+      log(`[maylog] não deu para converter ${path.relative(root, src)}: ${(e as Error).message}`)
+    }
+  }
+}
+
 export async function ditherAll(root: string, log = (m: string) => console.log(m)) {
+  await ditherScenes(root, log)
   const postsDir = path.join(root, 'posts')
   if (!fs.existsSync(postsDir)) return
   for (const dir of fs.readdirSync(postsDir)) {
@@ -106,7 +139,7 @@ export function ditherBanners(): Plugin {
     configureServer(server) {
       const onChange = async (file: string) => {
         const rel = path.relative(root, file).replace(/\\/g, '/')
-        if (!rel.startsWith('posts/') || rel.endsWith('.dither.png')) return
+        if (!(rel.startsWith('posts/') || rel.startsWith('cenas/')) || rel.endsWith('.dither.png')) return
         if (/\.(md|jpe?g|png|webp)$/i.test(rel)) await ditherAll(root)
       }
       server.watcher.on('add', onChange)

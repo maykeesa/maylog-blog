@@ -4,7 +4,6 @@ import matter from 'gray-matter'
 import sharp from 'sharp'
 import type { HeadConfig, SiteConfig, TransformContext } from 'vitepress'
 import { site } from './theme/site'
-import { sceneBits, RANDOM_SCENES } from './theme/lib/dither'
 import { ditherOutput } from './banners'
 import { feedLinks } from './feed'
 
@@ -48,19 +47,39 @@ function meta(folder: string, lang: 'pt' | 'en'): Meta {
   }
 }
 
-/* bits do post: do banner pontilhado gerado no build ou da cena fixa (mesma regra de sceneFor) */
-async function postBits(folder: string, m: Meta): Promise<{ bits: Uint8Array; w: number; h: number }> {
+type Bits = { bits: Uint8Array; w: number; h: number }
+
+/* lê um PNG pontilhado (gerado no build) e devolve os bits: 1 onde há tinta */
+async function readBits(file: string): Promise<Bits | undefined> {
+  if (!fs.existsSync(file)) return undefined
+  const { data, info } = await sharp(file).ensureAlpha().raw().toBuffer({ resolveWithObject: true })
+  const bits = new Uint8Array(info.width * info.height)
+  for (let i = 0; i < bits.length; i++) bits[i] = data[i * 4 + 3] > 127 ? 1 : 0
+  return { bits, w: info.width, h: info.height }
+}
+
+/* cenas da home, em ordem alfabética (a mesma regra de sceneFor no site) */
+const scenesDir = path.join(root, 'cenas', 'home')
+function homeScenes(): string[] {
+  if (!fs.existsSync(scenesDir)) return []
+  return fs
+    .readdirSync(scenesDir)
+    .filter((f) => /\.(jpe?g|png|webp)$/i.test(f) && !f.endsWith('.dither.png'))
+    .map((f) => f.replace(/\.[^.]+$/, ''))
+    .sort()
+}
+const sceneBits = (name: string) => readBits(path.join(scenesDir, `${name}.dither.png`))
+const blank = (): Bits => ({ bits: new Uint8Array(340 * 190), w: 340, h: 190 })
+
+/* bits do post: do banner pontilhado, ou da cena fixa do post quando não há banner */
+async function postBits(folder: string, m: Meta): Promise<Bits> {
   if (m.banner) {
-    const file = ditherOutput(path.join(postsDir, folder, m.banner))
-    if (fs.existsSync(file)) {
-      const { data, info } = await sharp(file).ensureAlpha().raw().toBuffer({ resolveWithObject: true })
-      const bits = new Uint8Array(info.width * info.height)
-      for (let i = 0; i < bits.length; i++) bits[i] = data[i * 4 + 3] > 127 ? 1 : 0
-      return { bits, w: info.width, h: info.height }
-    }
+    const fromBanner = await readBits(ditherOutput(path.join(postsDir, folder, m.banner)))
+    if (fromBanner) return fromBanner
   }
+  const list = homeScenes()
   const n = parseInt(m.n, 10) || 0
-  return { bits: sceneBits(RANDOM_SCENES[n % RANDOM_SCENES.length], n * 131 + 7, 340, 190), w: 340, h: 190 }
+  return (list.length && (await sceneBits(list[n % list.length]))) || blank()
 }
 
 function hex(c: string) {
@@ -105,7 +124,7 @@ export function pageInfo(relativePath: string, params?: Record<string, unknown>)
 export async function writeOgImages(config: SiteConfig) {
   const dir = path.join(config.outDir, 'og')
   fs.mkdirSync(dir, { recursive: true })
-  await card({ bits: sceneBits('mar', 42, 340, 190), w: 340, h: 190 }, 'maylog_', path.join(dir, 'site.png'))
+  await card((await sceneBits('mar')) || blank(), 'maylog_', path.join(dir, 'site.png'))
   if (!fs.existsSync(postsDir)) return
   for (const folder of fs.readdirSync(postsDir)) {
     if (folder.startsWith('_') || !fs.existsSync(path.join(postsDir, folder, 'index.md'))) continue

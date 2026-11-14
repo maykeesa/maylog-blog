@@ -72,6 +72,15 @@ Data, tema, tags e banner vêm do `index.md`. Sem o `index.en.md`, a página em 
 
 O texto de apresentação em inglês fica em `en/sobre.md`, e os textos da interface em `.vitepress/theme/lib/i18n.ts`.
 
+## cenas pontilhadas
+
+As imagens sorteadas na home (e usadas nos posts sem banner) ficam em `cenas/home/`; a TV da página 404 fica em `cenas/404/`. O build converte cada `.jpg` em pontilhado (`.dither.png`, fora do git), e o site pinta os pontos na cor do tema.
+
+- Para trocar uma cena, substitua o `.jpg` mantendo o nome. Para criar outra, coloque um `.jpg` novo na pasta: ele entra no sorteio sozinho.
+- O nome do arquivo vira o nome mostrado embaixo da imagem ("cena: farol").
+- A faixa da home tem o formato 340×96 (bem largo); imagens em outro formato são mostradas recortadas no meio.
+- Imagens em tons de cinza são pontilhadas como estão; fotos coloridas ganham ajuste de contraste, como os banners.
+
 ## onde editar o resto
 
 - `sobre.md`: o texto de apresentação da página sobre.
