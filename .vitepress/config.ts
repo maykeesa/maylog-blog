@@ -1,4 +1,7 @@
+import fs from 'node:fs'
+import path from 'node:path'
 import { defineConfig } from 'vitepress'
+import { site } from './theme/site'
 import { createCssVariablesTheme } from 'shiki'
 import footnote from 'markdown-it-footnote'
 import { ditherBanners } from './banners'
@@ -47,9 +50,17 @@ export default defineConfig({
       md.use(footnote)
     }
   },
+  /* mapa do site para buscadores (usa o domínio de site.ts) */
+  sitemap: {
+    hostname: site.url.replace(/\/$/, '') + '/'
+  },
   async buildEnd(config) {
     await writeFeed(config)
     await writeOgImages(config)
+    fs.writeFileSync(
+      path.join(config.outDir, 'robots.txt'),
+      `User-agent: *\nAllow: /\n\nSitemap: ${site.url.replace(/\/$/, '')}/sitemap.xml\n`
+    )
   },
   /* título da aba e descrição vêm do post (titulo e subtitulo), nos dois idiomas */
   transformPageData(pageData) {
