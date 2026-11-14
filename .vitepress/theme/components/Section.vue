@@ -24,6 +24,8 @@ function readClosed(): Record<string, boolean> {
 
 onMounted(() => {
   open.value = !readClosed()[id]
+  /* a partir daqui o Vue controla as seções: tira o estilo provisório aplicado no <head> (config.ts) */
+  document.getElementById('maylog-closed-css')?.remove()
 })
 
 function toggle() {

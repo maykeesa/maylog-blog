@@ -28,6 +28,23 @@ const themeBootstrap = `(function () {
     var f = z === '100' ? 1 : z === '110' ? 1.1 : z === '125' ? 1.25 : (w >= 2400 ? 1.25 : w >= 2100 ? 1.1 : 1);
     if (f !== 1) document.documentElement.style.zoom = String(f);
   } catch (e) {}
+  /* seções que o leitor deixou fechadas já aparecem fechadas (Section.vue remove este estilo ao montar) */
+  try {
+    var closed = JSON.parse(localStorage.getItem('maylog-closed') || '{}') || {};
+    var css = '';
+    for (var id in closed) {
+      if (!closed[id] || !/^[a-z0-9-]+$/.test(id)) continue;
+      css += '#sec-' + id + '{display:none!important}';
+      css += '[aria-controls="sec-' + id + '"] .chev{font-size:0}';
+      css += '[aria-controls="sec-' + id + '"] .chev::before{content:"▸";font-size:12px}';
+    }
+    if (css) {
+      var st = document.createElement('style');
+      st.id = 'maylog-closed-css';
+      st.textContent = css;
+      document.head.appendChild(st);
+    }
+  } catch (e) {}
 })();`
 
 /* Destaque de código com variáveis CSS: as cores vêm dos tokens --c-* de cada tema. */
