@@ -4,7 +4,7 @@ import type { Post } from '../data/posts.data'
   Endereços do banner de cada post: a foto original e a versão pontilhada gerada no build.
   Os arquivos são encontrados pelo Vite, que já cuida de copiar e versionar.
 */
-const images = import.meta.glob('/posts/*/*.{jpg,jpeg,png,webp,JPG,JPEG,PNG,WEBP}', {
+const images = import.meta.glob('/posts/*/**/*.{jpg,jpeg,png,webp,JPG,JPEG,PNG,WEBP}', {
   eager: true,
   query: '?url',
   import: 'default'

@@ -4,7 +4,7 @@ subtitulo: Um registro de teste com cada elemento de formatação, para ver como
 data: 2026-11-14
 tema: técnica
 tags: [markdown, guia, exemplo]
-banner: banner.jpg
+banner: imagens/banner.jpg
 ---
 
 Este post existe para testar o visual. Ele passa por cada coisa que dá para escrever num arquivo `.md` do maylog: textos, listas, citações, código, tabelas, imagens, notas e blocos especiais. Leia trocando entre **white**, **dark** e **sepia** no topo, e apague a pasta quando não precisar mais.
@@ -164,7 +164,7 @@ Colunas podem ser alinhadas à esquerda, ao centro ou à direita:
 
 Imagens no meio do texto ficam no original, sem pontilhado, com uma borda fina. Bom para prints:
 
-![Print do terminal rodando o npm run dev](./print-terminal.png)
+![Print do terminal rodando o npm run dev](./imagens/print-terminal.png)
 
 *Print do terminal com o servidor do maylog rodando.*
 

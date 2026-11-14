@@ -19,7 +19,7 @@ Cada post é uma pasta dentro de `posts/`, com o número do registro no começo 
 posts/
   012-sobre-escrever-sem-publico/
     index.md       ← o texto
-    banner.jpg     ← a foto do banner (opcional)
+    banner.jpg     ← a foto do banner (opcional; pode ficar em imagens/)
 ```
 
 No topo do `index.md` ficam os dados do post:
@@ -37,7 +37,9 @@ banner: banner.jpg
 
 - `titulo`, `data` e `tema` são obrigatórios.
 - `banner` é opcional: a foto é convertida sozinha em pontilhado (`banner.dither.png`, gerado no build e fora do git). No post, clicar no banner mostra a foto original. Se a conversão ficar ruim, use `contraste: alto` ou `contraste: baixo`.
-- Prints e imagens no meio do texto (`![legenda](print.png)`) ficam no original.
+- Tamanho ideal do banner: foto horizontal em 16:9, com 1600×900 ou 1920×1080, abaixo de ~500 KB. Fotos em outro formato são cortadas para 16:9 na parte com mais detalhe; fotos verticais perdem muito, então vale cortar antes.
+- Prints e imagens no meio do texto (`![legenda](./imagens/print.png)`) ficam no original.
+- As imagens podem ficar soltas na pasta do post ou numa subpasta, como `imagens/`. Use o caminho relativo à pasta do post, tanto no texto quanto no `banner: imagens/banner.jpg`.
 - Blocos de código: escreva a linguagem e, se quiser, o nome do arquivo entre colchetes. Para destacar linhas, use chaves:
 
   ````md
