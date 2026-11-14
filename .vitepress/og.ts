@@ -91,6 +91,31 @@ async function card(art: { bits: Uint8Array; w: number; h: number }, label: stri
   const ink = hex(INK), paper = hex(PAPER)
   const rgb = Buffer.alloc(art.w * art.h * 3)
   for (let i = 0; i < art.bits.length; i++) rgb.set(art.bits[i] ? ink : paper, i * 3)
+  /*
+    Cenas da home (faixas bem largas): mostradas inteiras, emolduradas no papel, em vez de recortadas.
+    Banners (16:9): ampliados para preencher a imagem toda.
+  */
+  if (art.w / art.h > 2.2) {
+    const s = Math.floor((OG_W - 180) / art.w)
+    const w = art.w * s, h = art.h * s
+    const left = Math.round((OG_W - w) / 2), top = Math.round((OG_H - h - 96) / 2)
+    const strip = await sharp(rgb, { raw: { width: art.w, height: art.h, channels: 3 } })
+      .resize(w, h, { kernel: 'nearest' })
+      .png()
+      .toBuffer()
+    const frame = Buffer.from(
+      `<svg xmlns="http://www.w3.org/2000/svg" width="${OG_W}" height="${OG_H}">
+        <rect x="${left - 6}" y="${top - 6}" width="${w + 12}" height="${h + 12}" fill="none" stroke="${INK}" stroke-width="3"/>
+        <rect x="${left - 6}" y="${top + h + 36}" width="${36 + label.length * 21}" height="72" fill="${PAPER}" stroke="${INK}" stroke-width="3"/>
+        <text x="${left + 12}" y="${top + h + 85}" font-family="IBM Plex Mono, DejaVu Sans Mono, Consolas, monospace" font-size="34" font-weight="700" fill="${INK}">${label}</text>
+      </svg>`
+    )
+    await sharp({ create: { width: OG_W, height: OG_H, channels: 3, background: PAPER } })
+      .composite([{ input: strip, left, top }, { input: frame }])
+      .png({ compressionLevel: 9, palette: true })
+      .toFile(out)
+    return
+  }
   /* amplia sem suavizar (pixels nítidos) e recorta para 1200×630 */
   const scale = Math.ceil(Math.max(OG_W / art.w, OG_H / art.h))
   const big = await sharp(rgb, { raw: { width: art.w, height: art.h, channels: 3 } })
