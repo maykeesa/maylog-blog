@@ -1,0 +1,73 @@
+/*
+  Tokens dos três temas. O tema ativo fica em <html data-theme="white|dark|sepia">,
+  definido antes da página aparecer (ver config.ts) e trocado pelo seletor do topo.
+*/
+:root,
+:root[data-theme='white'] {
+  --bg: #fafaf7;
+  --ink: #141414;
+  --muted: #6b6a64;
+  --rule: #d9d7cf;
+  --bar: #ebe9e2;
+  --link: #1f3fae;
+  --visited: #434a63;
+  --sel: #fff1a8;
+  /* imagens pontilhadas: tinta e "papel" (transparente = usa o fundo da página) */
+  --img-ink: var(--ink);
+  --img-paper: transparent;
+  /* código */
+  --c-bg: #f3f2ec;
+  --c-kw: #1f3fae;
+  --c-str: #2e6b3c;
+  --c-com: #8a877e;
+  --c-fn: #8b4513;
+  --c-num: #9a3b1c;
+  --c-type: #0f6668;
+  color-scheme: light;
+
+  --serif: 'Source Serif 4', Georgia, 'Times New Roman', serif;
+  --mono: 'IBM Plex Mono', 'Courier New', monospace;
+}
+
+:root[data-theme='dark'] {
+  --bg: #121212;
+  --ink: #dcdad3;
+  --muted: #8b8981;
+  --rule: #2f2e2b;
+  --bar: #1f1f1d;
+  --link: #93a9e0;
+  --visited: #a9adbd;
+  --sel: #3a3520;
+  /* no dark as imagens ficam como no white: tinta escura sobre papel claro levemente apagado */
+  --img-ink: #141414;
+  --img-paper: #d9d7cf;
+  --c-bg: #181817;
+  --c-kw: #93a9e0;
+  --c-str: #a3c49c;
+  --c-com: #77756e;
+  --c-fn: #d9ab72;
+  --c-num: #e09a7a;
+  --c-type: #84c3c1;
+  color-scheme: dark;
+}
+
+:root[data-theme='sepia'] {
+  --bg: #f1e7d0;
+  --ink: #3b2f22;
+  --muted: #7d6a52;
+  --rule: #d8c8a6;
+  --bar: #e5d6b6;
+  --link: #8b2e1a;
+  --visited: #5e4a2e;
+  --sel: #f3d58a;
+  --img-ink: var(--ink);
+  --img-paper: transparent;
+  --c-bg: #ebdfc4;
+  --c-kw: #8b2e1a;
+  --c-str: #4c6a28;
+  --c-com: #9a8669;
+  --c-fn: #7a4f0e;
+  --c-num: #a2441f;
+  --c-type: #2e5b57;
+  color-scheme: light;
+}
