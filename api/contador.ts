@@ -14,8 +14,8 @@ import { Redis } from '@upstash/redis'
   (variáveis KV_REST_API_URL e KV_REST_API_TOKEN).
 */
 
-const VISITAS = 'contador:total-visitas'
-const VISITANTES = 'contador:total-visitantes'
+const VISITAS = 'maylog:contador:visitas'
+const VISITANTES = 'maylog:contador:visitantes'
 
 const redis = new Redis({
   url: process.env.KV_REST_API_URL ?? process.env.UPSTASH_REDIS_REST_URL ?? '',
