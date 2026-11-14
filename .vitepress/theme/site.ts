@@ -52,6 +52,17 @@ export const site = {
     email: 'maykeesa.contato@gmail.com'
   },
 
+  /*
+    Contador de visitas do rodapé (botão 88×31).
+    Sem "url", ele é só de brincadeira: mostra "base" + as visitas deste navegador.
+    Com "url", busca o total de verdade: um endereço que responda {"count": 1234} a um POST
+    (por exemplo um Cloudflare Worker com KV, sem cookies).
+  */
+  contador: {
+    url: '',
+    base: 1337
+  },
+
   /* ficha da página "sobre" (o contato entra sozinho no fim) */
   ficha: [
     { rotulo: 'nome', valor: 'Mayke Erick' },

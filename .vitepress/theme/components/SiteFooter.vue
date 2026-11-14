@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { site } from '../site'
 import Section from './Section.vue'
+import VisitCounter from './VisitCounter.vue'
 
 defineProps<{ footline?: string }>()
 </script>
@@ -24,7 +25,7 @@ defineProps<{ footline?: string }>()
       <span class="badge"><span>vue</span><span>feito por IA em vue.js</span></span>
       <span class="badge"><span>.md</span><span>escrito em markdown</span></span>
       <span class="badge"><span>www</span><span>melhor em 800×600</span></span>
-      <slot name="badges" />
+      <VisitCounter />
     </div>
   </footer>
 </template>
