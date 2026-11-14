@@ -2,11 +2,7 @@
 
 O que ficou para depois. Apague o item quando terminar.
 
-## domínio
-
-O site está em https://maylog.net (domínio no Squarespace, hospedagem na Vercel), publicado sozinho a cada `git push`.
-
-- [ ] Opcional: fazer `www.maylog.net` levar para `maylog.net` (adicionar na Vercel com redirect e criar o CNAME `www` no Squarespace).
+O site está em https://maylog.net (domínio no Squarespace, `www` redirecionando para ele; hospedagem e contador na Vercel), publicado sozinho a cada `git push`.
 
 ## melhorias combinadas
 
