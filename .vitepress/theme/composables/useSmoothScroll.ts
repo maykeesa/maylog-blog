@@ -1,4 +1,5 @@
 import type Lenis from 'lenis'
+import { currentZoom } from './useZoom'
 
 /*
   Rolagem suave da página (roda do mouse e trackpad) com a biblioteca Lenis.
@@ -79,6 +80,8 @@ const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3)
   Para quem pediu "reduzir movimento", vai direto, sem animação.
 */
 export function smoothScrollTo(target: number | HTMLElement, offset = 0) {
+  /* a barra fixa cresce junto com o tamanho da página: a distância também */
+  offset *= currentZoom()
   if (lenis) {
     lenis.scrollTo(target, { offset, duration: 1.1, easing: easeOutCubic })
     return

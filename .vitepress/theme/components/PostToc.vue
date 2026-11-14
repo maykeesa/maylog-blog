@@ -4,6 +4,7 @@ import { useRoute } from 'vitepress'
 import Section from './Section.vue'
 import { useI18n } from '../composables/useI18n'
 import { smoothScrollTo } from '../composables/useSmoothScroll'
+import { currentZoom } from '../composables/useZoom'
 
 /*
   Sumário do post, montado a partir dos subtítulos (##) já renderizados.
@@ -73,7 +74,7 @@ function update() {
   if (!showBar.value) popOpen.value = false
   let idx = -1
   headEls.forEach((h, i) => {
-    if (h.getBoundingClientRect().top < 100) idx = i
+    if (h.getBoundingClientRect().top < 100 * currentZoom()) idx = i
   })
   current.value = idx
   const art = document.querySelector('.post')?.getBoundingClientRect()

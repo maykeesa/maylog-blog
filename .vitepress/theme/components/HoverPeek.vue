@@ -3,6 +3,7 @@ import { computed, nextTick, onBeforeUnmount, onMounted, shallowRef, useTemplate
 import { useRoute } from 'vitepress'
 import { useI18n } from '../composables/useI18n'
 import PostArt from './PostArt.vue'
+import { currentZoom } from '../composables/useZoom'
 
 /*
   Janelinha de prévia que segue o mouse sobre qualquer link de post com data-n
@@ -29,11 +30,13 @@ async function place(x: number, y: number) {
   await nextTick()
   const el = box.value
   if (!el) return
-  const pw = el.offsetWidth, ph = el.offsetHeight
+  /* com o tamanho da página aumentado, a janelinha também cresce: as contas são feitas na tela e convertidas */
+  const z = currentZoom()
+  const pw = el.offsetWidth * z, ph = el.offsetHeight * z
   let left = x + 18, top = y + 18
   if (left + pw > window.innerWidth - 12) left = Math.max(12, x - pw - 18)
   if (top + ph > window.innerHeight - 12) top = Math.max(12, y - ph - 18)
-  pos.value = { left, top }
+  pos.value = { left: left / z, top: top / z }
 }
 
 function linkFrom(e: Event) {

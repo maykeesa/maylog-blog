@@ -2,12 +2,14 @@
 import { computed } from 'vue'
 import { useData, withBase } from 'vitepress'
 import { THEMES, useTheme } from '../composables/useTheme'
+import { ZOOM_CHOICES, useZoom } from '../composables/useZoom'
 import { useI18n } from '../composables/useI18n'
 import { useCurrentPost } from '../composables/usePosts'
 import { site } from '../site'
 
 const { since } = defineProps<{ since?: string }>()
 const { theme, setTheme } = useTheme()
+const { choice: zoom, setZoom, autoPercent } = useZoom()
 const { page, frontmatter } = useData()
 const { t, lang, href } = useI18n()
 const { post } = useCurrentPost()
@@ -59,6 +61,17 @@ const enUnavailable = computed(() => lang.value === 'pt' && isPost.value && !!po
       <div class="themes" role="group" :aria-label="t('aria.theme')">
         <button v-for="th in THEMES" :key="th" type="button" :aria-pressed="theme === th" @click="setTheme(th)">{{ th }}</button>
       </div>
+      <span class="ctl-sep zoom-only" aria-hidden="true">|</span>
+      <div class="zoom zoom-only" role="group" :aria-label="t('aria.zoom')">
+        <button
+          v-for="z in ZOOM_CHOICES"
+          :key="z"
+          type="button"
+          :aria-pressed="zoom === z"
+          :title="z === 'auto' ? t('zoom.autoTitle', { n: autoPercent }) : `${z}%`"
+          @click="setZoom(z)"
+        >{{ z === 'auto' ? t('zoom.auto') : z }}</button>
+      </div>
     </div>
   </div>
 
@@ -98,34 +111,37 @@ const enUnavailable = computed(() => lang.value === 'pt' && isPost.value && !!po
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
-  gap: 4px 10px;
+  gap: 4px 6px;
 }
 .ctl-sep {
   color: var(--rule);
 }
 .langs,
-.themes {
+.themes,
+.zoom {
   display: flex;
-  gap: 4px;
+  gap: 1px;
   align-items: baseline;
 }
 .langs a,
 .langs a:visited,
 .langs span,
-.themes button {
+.themes button,
+.zoom button {
   font: inherit;
   background: none;
   border: 0;
   color: var(--muted);
   cursor: pointer;
-  padding: 2px 4px;
+  padding: 2px 3px;
   text-decoration: none;
 }
 .langs a:hover {
   color: var(--ink);
 }
 .langs .on,
-.themes button[aria-pressed='true'] {
+.themes button[aria-pressed='true'],
+.zoom button[aria-pressed='true'] {
   color: var(--ink);
   font-weight: 700;
   cursor: default;
@@ -134,12 +150,20 @@ const enUnavailable = computed(() => lang.value === 'pt' && isPost.value && !!po
   cursor: pointer;
 }
 .langs .on::before,
-.themes button[aria-pressed='true']::before {
+.themes button[aria-pressed='true']::before,
+.zoom button[aria-pressed='true']::before {
   content: '[';
 }
 .langs .on::after,
-.themes button[aria-pressed='true']::after {
+.themes button[aria-pressed='true']::after,
+.zoom button[aria-pressed='true']::after {
   content: ']';
+}
+/* no celular o tamanho é sempre 100% e o aparelho já tem zoom com os dedos: o controle some */
+@media (max-width: 700px) {
+  .zoom-only {
+    display: none;
+  }
 }
 .langs .off {
   opacity: 0.45;

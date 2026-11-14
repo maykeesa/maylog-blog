@@ -13,6 +13,9 @@ const pt = {
   'nav.sobre': 'sobre',
   'aria.theme': 'Tema',
   'aria.lang': 'Idioma',
+  'aria.zoom': 'Tamanho da página',
+  'zoom.auto': 'auto',
+  'zoom.autoTitle': 'automático pela sua tela: {n}%',
   'lang.noen': 'este registro ainda não tem versão em inglês',
 
   'search.label': 'buscar',
@@ -178,6 +181,9 @@ const en: Record<Key, string> = {
   'nav.sobre': 'about',
   'aria.theme': 'Theme',
   'aria.lang': 'Language',
+  'aria.zoom': 'Page size',
+  'zoom.auto': 'auto',
+  'zoom.autoTitle': 'automatic for your screen: {n}%',
   'lang.noen': 'this entry has no english version yet',
 
   'search.label': 'search',

@@ -20,6 +20,13 @@ const themeBootstrap = `(function () {
   } catch (e) {
     document.documentElement.setAttribute('data-theme', 'white');
   }
+  /* tamanho da página: escolha salva ou automático pela largura da tela (useZoom.ts) */
+  try {
+    var z = localStorage.getItem('maylog-zoom');
+    var w = window.screen.width;
+    var f = z === '100' ? 1 : z === '110' ? 1.1 : z === '125' ? 1.25 : (w >= 2400 ? 1.25 : w >= 2100 ? 1.1 : 1);
+    if (f !== 1) document.documentElement.style.zoom = String(f);
+  } catch (e) {}
 })();`
 
 /* Destaque de código com variáveis CSS: as cores vêm dos tokens --c-* de cada tema. */
