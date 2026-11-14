@@ -99,7 +99,7 @@ const pt = {
   'about.blog': 'sobre o maylog',
   'about.blog1':
     'O nome junta "may", de Mayke, com "log", de weblog: o jeito antigo de chamar um blog, quando ele era um registro com data no topo. Por isso a página inicial parece um arquivo de log, com número, data e tema em cada linha.',
-  'about.blog2': 'Escrevo sobre o que der vontade, sem calendário. Não há anúncios, cookies nem rastreio. Para acompanhar, use o RSS.',
+  'about.blog2': 'Escrevo sobre o que der vontade, sem calendário. Não há anúncios, cookies nem rastreio. Para acompanhar, assine o feed.',
   'about.colophon': 'colofão',
   'about.colophonSide': 'como o site é feito',
 
@@ -157,7 +157,7 @@ const pt = {
   'foot.networks': 'redes',
   'foot.updated': 'última atualização',
   'foot.privacy': 'sem cookies, sem rastreio',
-  'badge.rss': 'assine o feed xml',
+  'badge.rss': 'assine o feed json',
   'badge.vue': 'feito por IA em vue.js',
   'badge.md': 'escrito em markdown',
   'badge.www': 'melhor em 800×600',
@@ -261,7 +261,7 @@ const en: Record<Key, string> = {
   'about.blog': 'about maylog',
   'about.blog1':
     'The name joins "may", from Mayke, with "log", from weblog: the old word for a blog, back when it was a dated record. That is why the home page looks like a log file, with a number, a date and a topic on each line.',
-  'about.blog2': 'I write about whatever I feel like, with no schedule. No ads, no cookies, no tracking. To follow along, use RSS.',
+  'about.blog2': 'I write about whatever I feel like, with no schedule. No ads, no cookies, no tracking. To follow along, subscribe to the feed.',
   'about.colophon': 'colophon',
   'about.colophonSide': 'how the site is made',
 
@@ -319,7 +319,7 @@ const en: Record<Key, string> = {
   'foot.networks': 'networks',
   'foot.updated': 'last updated',
   'foot.privacy': 'no cookies, no tracking',
-  'badge.rss': 'subscribe to the xml feed',
+  'badge.rss': 'subscribe to the json feed',
   'badge.vue': 'made by AI with vue.js',
   'badge.md': 'written in markdown',
   'badge.www': 'best at 800×600',
