@@ -80,6 +80,9 @@ const banner = computed(() => (post.value ? bannerOf(post.value) : undefined))
   padding: 6px 10px;
   margin: 0 0 24px;
 }
+.post-banner .banner {
+  border-radius: 4px;
+}
 .post-banner {
   margin: 0 0 32px;
 }
@@ -152,6 +155,7 @@ const banner = computed(() => (post.value ? bannerOf(post.value) : undefined))
 .post-body img {
   display: block;
   border: 1px solid var(--rule);
+  border-radius: 4px;
 }
 .post-body figure {
   margin: 2em 0;
