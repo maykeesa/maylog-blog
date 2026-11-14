@@ -3,34 +3,57 @@ import { computed, nextTick, onMounted, shallowRef } from 'vue'
 import { data as site } from '../data/site.data'
 import { useI18n } from '../composables/useI18n'
 
-/* Contador retrô em formato de botão 88×31: seis dígitos que rolam como um odômetro. */
+/*
+  Contador retrô em formato de botão 88×31: seis dígitos que rolam como um odômetro.
+  Mostra os visitantes únicos; passar o mouse mostra também o total de visitas.
+    - visita: conta uma vez por sessão (até fechar a aba); as outras páginas só leem os totais
+    - visitante: conta uma vez por navegador (um sinal no localStorage, nada vai para o servidor)
+*/
 const count = shallowRef<number | null>(null)
+const visits = shallowRef<number | null>(null)
+const isNew = shallowRef(false)
 const rolled = shallowRef(false)
 const { t, lang } = useI18n()
 const locale = computed(() => (lang.value === 'en' ? 'en-US' : 'pt-BR'))
 
-/* a visita conta uma vez por sessão (até fechar a aba); as outras páginas só leem o total */
-const COUNTED = 'maylog-counted'
-function alreadyCounted() {
+const SESSION = 'maylog-counted'
+const VISITOR = 'maylog-visitor'
+
+function read(store: () => Storage, key: string) {
   try {
-    if (sessionStorage.getItem(COUNTED)) return true
-    sessionStorage.setItem(COUNTED, '1')
+    return store().getItem(key) !== null
   } catch {
-    /* sem armazenamento: conta sempre */
+    return false
   }
-  return false
+}
+function mark(store: () => Storage, key: string) {
+  try {
+    store().setItem(key, '1')
+  } catch {
+    /* sem armazenamento */
+  }
 }
 
-async function load(): Promise<number> {
-  if (site.contador.url) {
-    try {
-      const r = await fetch(site.contador.url, { method: alreadyCounted() ? 'GET' : 'POST' })
-      const j = await r.json()
-      if (typeof j.count === 'number') return site.contador.base + j.count
-    } catch {
-      /* serviço fora do ar (ou npm run dev, que não roda a função): cai no modo brincadeira */
-    }
+async function fromServer(url: string) {
+  const counted = read(() => sessionStorage, SESSION)
+  const known = read(() => localStorage, VISITOR)
+  const r = await fetch(counted ? url : `${url}${url.includes('?') ? '&' : '?'}novo=${known ? 0 : 1}`, {
+    method: counted ? 'GET' : 'POST'
+  })
+  const j = await r.json()
+  if (typeof j.count !== 'number') throw new Error('resposta inesperada')
+  /* só marca depois que o servidor respondeu, para uma falha não perder a contagem */
+  if (!counted) mark(() => sessionStorage, SESSION)
+  if (!counted && !known) {
+    mark(() => localStorage, VISITOR)
+    isNew.value = true
   }
+  count.value = site.contador.base + j.count
+  visits.value = typeof j.visitas === 'number' ? j.visitas : null
+}
+
+/* sem servidor (ou npm run dev, que não roda a função): modo brincadeira, com as visitas deste navegador */
+function offline() {
   let v = 1
   try {
     v = parseInt(localStorage.getItem('maylog-visits') || '0', 10) + 1
@@ -38,29 +61,41 @@ async function load(): Promise<number> {
   } catch {
     /* sem armazenamento */
   }
-  return site.contador.base + v
+  count.value = site.contador.base + v
+  isNew.value = true
 }
 
 onMounted(async () => {
-  count.value = await load()
+  try {
+    if (!site.contador.url) throw new Error('sem url')
+    await fromServer(site.contador.url)
+  } catch {
+    offline()
+  }
   await nextTick()
   requestAnimationFrame(() => requestAnimationFrame(() => (rolled.value = true)))
 })
 
 const digits = computed(() => String(count.value ?? 0).padStart(6, '0').slice(-6).split('').map(Number))
-const tip = computed(() => (count.value ? t('count.you', { n: count.value.toLocaleString(locale.value) }) : ''))
+const tip = computed(() => {
+  if (!count.value) return ''
+  const n = (x: number) => x.toLocaleString(locale.value)
+  const parts = [isNew.value ? t('count.you', { n: n(count.value) }) : t(count.value === 1 ? 'count.visitorN' : 'count.visitorsN', { n: n(count.value) })]
+  if (visits.value !== null) parts.push(t(visits.value === 1 ? 'count.visitN' : 'count.visitsN', { n: n(visits.value) }))
+  return parts.join(' · ')
+})
 </script>
 
 <template>
   <span class="badge-cnt" :title="tip">
-    <span class="odo" role="img" :aria-label="count ? `${count.toLocaleString(locale)} ${t('count.visits')}` : t('count.visits')">
+    <span class="odo" role="img" :aria-label="count ? `${count.toLocaleString(locale)} ${t('count.visitors')}` : t('count.visitors')">
       <span v-for="(d, i) in digits" :key="i" class="dg" aria-hidden="true">
         <span class="col" :style="{ transform: rolled ? `translateY(${-d * 1.6}em)` : 'none', transitionDelay: `${i * 90}ms` }">
           <span v-for="k in 10" :key="k">{{ k - 1 }}</span>
         </span>
       </span>
     </span>
-    <small>{{ t('count.visits') }}</small>
+    <small>{{ t('count.visitors') }}</small>
   </span>
 </template>
 

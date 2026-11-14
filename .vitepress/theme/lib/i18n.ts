@@ -169,7 +169,11 @@ const pt = {
   'badge.vue': 'feito por IA em vue.js',
   'badge.md': 'escrito em markdown',
   'badge.www': 'melhor em 800×600',
-  'count.visits': 'visitas',
+  'count.visitors': 'visitantes',
+  'count.visitorsN': '{n} visitantes',
+  'count.visitsN': '{n} visitas',
+  'count.visitorN': '{n} visitante',
+  'count.visitN': '{n} visita',
   'count.you': 'você é o visitante nº {n} ✦'
 }
 
@@ -339,7 +343,11 @@ const en: Record<Key, string> = {
   'badge.vue': 'made by AI with vue.js',
   'badge.md': 'written in markdown',
   'badge.www': 'best at 800×600',
-  'count.visits': 'visits',
+  'count.visitors': 'visitors',
+  'count.visitorsN': '{n} visitors',
+  'count.visitsN': '{n} visits',
+  'count.visitorN': '{n} visitor',
+  'count.visitN': '{n} visit',
   'count.you': 'you are visitor no. {n} ✦'
 }
 

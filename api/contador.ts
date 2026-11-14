@@ -2,27 +2,43 @@ import { Redis } from '@upstash/redis'
 
 /*
   Contador de visitas do rodapé, rodando como função da Vercel em maylog.net/api/contador.
-    POST → soma uma visita e devolve o total: {"count": 1234}
-    GET  → só devolve o total, sem somar
-  O total fica num banco Redis da Upstash, ligado ao projeto pelo painel da Vercel
-  (variáveis KV_REST_API_URL e KV_REST_API_TOKEN). Não guarda nada de quem visita, só o número.
+    POST            → soma uma visita
+    POST ?novo=1    → soma uma visita e um visitante (primeira vez daquele navegador)
+    GET             → só lê os totais
+  Sempre devolve {"count": visitantes, "visitas": visitas}.
+
+  Quem decide se o visitante é novo é o próprio navegador (um sinal no localStorage),
+  então o servidor não recebe nem guarda nada de quem visita: só os dois números.
+  O banco é um Redis da Upstash ligado ao projeto pelo painel da Vercel
+  (variáveis KV_REST_API_URL e KV_REST_API_TOKEN).
 */
 
-const KEY = 'maylog:visitas'
+const VISITAS = 'contador:visitas'
+const VISITANTES = 'contador:visitantes'
 
 const redis = new Redis({
   url: process.env.KV_REST_API_URL ?? process.env.UPSTASH_REDIS_REST_URL ?? '',
   token: process.env.KV_REST_API_TOKEN ?? process.env.UPSTASH_REDIS_REST_TOKEN ?? ''
 })
 
-function reply(count: number) {
-  return Response.json({ count }, { headers: { 'Cache-Control': 'no-store' } })
+function reply(visitantes: unknown, visitas: unknown) {
+  return Response.json(
+    { count: Number(visitantes) || 0, visitas: Number(visitas) || 0 },
+    { headers: { 'Cache-Control': 'no-store' } }
+  )
 }
 
-export async function POST() {
-  return reply(await redis.incr(KEY))
+export async function POST(request: Request) {
+  const novo = new URL(request.url).searchParams.get('novo') === '1'
+  if (novo) {
+    const [visitas, visitantes] = await redis.pipeline().incr(VISITAS).incr(VISITANTES).exec<[number, number]>()
+    return reply(visitantes, visitas)
+  }
+  const [visitas, visitantes] = await Promise.all([redis.incr(VISITAS), redis.get<number>(VISITANTES)])
+  return reply(visitantes, visitas)
 }
 
 export async function GET() {
-  return reply(Number(await redis.get<number>(KEY)) || 0)
+  const [visitas, visitantes] = await redis.mget<[number | null, number | null]>(VISITAS, VISITANTES)
+  return reply(visitantes, visitas)
 }
