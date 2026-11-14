@@ -22,7 +22,7 @@ const archiveLink = (key: 'tag' | 'tema', value: string) => withBase(`${href('/a
     <div class="meta">
       <span>{{ t('post.n') }} {{ post.n }}</span>
       <span>{{ post.dataLog }}</span>
-      <span>{{ t('post.topic') }} {{ post.tema }}</span>
+      <span>{{ t('post.topic') }} <a class="meta-link" :href="archiveLink('tema', post.tema)">{{ post.tema }}</a></span>
       <span>{{ post.minutos }} {{ t('post.read') }}</span>
     </div>
     <h1>{{ post.titulo }}</h1>
@@ -57,6 +57,13 @@ const archiveLink = (key: 'tag' | 'tema', value: string) => withBase(`${href('/a
 </template>
 
 <style>
+.meta-link,
+.meta-link:visited {
+  color: inherit;
+}
+.meta-link:hover {
+  color: var(--link);
+}
 .post-tags {
   display: flex;
   flex-wrap: wrap;
