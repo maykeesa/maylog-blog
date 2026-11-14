@@ -16,6 +16,9 @@
   },
   "author": "Mayke Erick",
   "devDependencies": {
+    "@types/markdown-it-footnote": "3.0.4",
+    "markdown-it-footnote": "4.0.0",
+    "shiki": "2.5.0",
     "typescript": "5.6.3",
     "vitepress": "1.6.3",
     "vue": "3.5.13",

@@ -1,0 +1,114 @@
+/*
+  Blocos de código gerados pelo VitePress (Shiki com variáveis CSS).
+  As cores vêm dos tokens --c-* de cada tema (tokens.css).
+*/
+:root {
+  --shiki-foreground: var(--ink);
+  --shiki-background: transparent;
+  --shiki-token-keyword: var(--c-kw);
+  --shiki-token-constant: var(--c-num);
+  --shiki-token-string: var(--c-str);
+  --shiki-token-string-expression: var(--c-str);
+  --shiki-token-comment: var(--c-com);
+  --shiki-token-function: var(--c-fn);
+  --shiki-token-parameter: var(--ink);
+  --shiki-token-punctuation: var(--ink);
+  --shiki-token-link: var(--c-type);
+}
+
+div[class*='language-'] {
+  position: relative;
+  margin: 1.6em 0;
+  border: 1px solid var(--rule);
+  background: var(--c-bg);
+  padding-top: 24px; /* espaço da barra de título */
+}
+/* barra de título: linguagem à esquerda, "copiar" à direita */
+div[class*='language-']::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 24px;
+  background: var(--bar);
+  border-bottom: 1px solid var(--rule);
+}
+div[class*='language-'] > span.lang {
+  position: absolute;
+  top: 4px;
+  left: 8px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink);
+  z-index: 1;
+}
+div[class*='language-'] > button.copy {
+  position: absolute;
+  top: 2px;
+  right: 6px;
+  z-index: 1;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--link);
+  background: none;
+  border: 0;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  padding: 2px;
+}
+div[class*='language-'] > button.copy::before {
+  content: 'copiar';
+}
+div[class*='language-'] > button.copy.copied::before {
+  content: 'copiado!';
+}
+
+div[class*='language-'] pre {
+  margin: 0;
+  padding: 12px 14px 12px 0;
+  overflow-x: auto;
+  font-family: var(--mono);
+  font-size: 13.5px;
+  line-height: 1.65;
+  background: transparent !important;
+}
+div[class*='language-'] code {
+  font-family: var(--mono);
+  display: block;
+  width: fit-content;
+  min-width: 100%;
+}
+div[class*='language-'] .line {
+  display: inline-block;
+  min-width: 100%;
+}
+
+/* números de linha */
+div[class*='language-'].line-numbers-mode {
+  padding-left: 2.6em;
+}
+div[class*='language-'] .line-numbers-wrapper {
+  position: absolute;
+  top: 24px;
+  bottom: 0;
+  left: 0;
+  width: 2.6em;
+  padding-top: 12px;
+  font-family: var(--mono);
+  font-size: 13.5px;
+  line-height: 1.65;
+  text-align: right;
+  padding-right: 0.8em;
+  color: var(--muted);
+  opacity: 0.6;
+  user-select: none;
+}
+div[class*='language-'].line-numbers-mode pre {
+  padding-left: 1em;
+}
+
+/* comentários em itálico */
+.shiki span[style*='font-style:italic'],
+.shiki span[style*='font-style: italic'] {
+  font-style: italic;
+}

@@ -5,9 +5,13 @@ import { data as posts } from './data/posts.data'
 import SiteHeader from './components/SiteHeader.vue'
 import SiteFooter from './components/SiteFooter.vue'
 import Home from './pages/Home.vue'
+import Post from './pages/Post.vue'
 
-const { frontmatter } = useData()
-const layout = computed(() => frontmatter.value.layout)
+const { frontmatter, page } = useData()
+const layout = computed(() => {
+  if (frontmatter.value.layout) return frontmatter.value.layout
+  return page.value.relativePath.startsWith('posts/') ? 'post' : 'page'
+})
 
 /* "desde AAAA" sai do primeiro post; "última atualização" sai do mais recente */
 const since = computed(() => posts[posts.length - 1]?.ano)
@@ -24,6 +28,7 @@ const footline = computed(() => {
     <SiteHeader :since="since" />
     <main>
       <Home v-if="layout === 'home'" />
+      <Post v-else-if="layout === 'post'" />
       <Content v-else />
     </main>
     <SiteFooter :footline="footline" />

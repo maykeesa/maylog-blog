@@ -1,4 +1,6 @@
 import { defineConfig } from 'vitepress'
+import { createCssVariablesTheme } from 'shiki'
+import footnote from 'markdown-it-footnote'
 
 /* Aplica o tema salvo antes da página aparecer, para não piscar no tema errado. */
 const themeBootstrap = `(function () {
@@ -13,6 +15,14 @@ const themeBootstrap = `(function () {
   }
 })();`
 
+/* Destaque de código com variáveis CSS: as cores vêm dos tokens --c-* de cada tema. */
+const codeTheme = createCssVariablesTheme({
+  name: 'maylog',
+  variablePrefix: '--shiki-',
+  variableDefaults: {},
+  fontStyle: true
+})
+
 export default defineConfig({
   lang: 'pt-BR',
   title: 'maylog',
@@ -20,6 +30,18 @@ export default defineConfig({
   cleanUrls: true,
   appearance: false,
   srcExclude: ['README.md'],
+  markdown: {
+    theme: codeTheme,
+    lineNumbers: true,
+    config(md) {
+      md.use(footnote)
+    }
+  },
+  /* o título da aba vem do "titulo" do post */
+  transformPageData(pageData) {
+    const t = pageData.frontmatter.titulo
+    if (t) pageData.title = String(t)
+  },
   head: [
     ['link', { rel: 'preconnect', href: 'https://fonts.googleapis.com' }],
     ['link', { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' }],
