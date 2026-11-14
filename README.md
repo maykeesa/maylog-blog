@@ -104,14 +104,14 @@ Para parar o `npm run dev` ou o `npm run preview`, aperte <kbd>Ctrl</kbd> + <kbd
 
 ### 1. Crie a pasta do post
 
-Dentro de `posts/`, crie uma pasta com o **número do registro** (três dígitos, o próximo da sequência) e um nome curto, sem acentos e com hífens:
+Dentro de `posts/`, crie uma pasta com o **número do registro** (três dígitos, o próximo da sequência; o primeiro é `001`) e um nome curto, sem acentos e com hífens:
 
 ```
 posts/
-  004-meu-primeiro-texto/
+  001-meu-primeiro-texto/
 ```
 
-O número aparece no site como "nº 004" e define a ordem dos posts.
+O número aparece no site como "nº 001" e define a ordem dos posts. O nome da pasta vira o endereço: `maylog.net/posts/001-meu-primeiro-texto/`.
 
 ### 2. Crie o `index.md`
 
@@ -124,6 +124,7 @@ subtitulo: Uma frase curta que aparece embaixo do título.
 data: 2026-11-20
 tema: ensaio
 tags: [escrita, livros]
+banner: banner/banner.jpg
 ---
 
 O primeiro parágrafo do post. A primeira letra ganha a capitular sozinha.
@@ -135,23 +136,26 @@ Mais texto, com **negrito**, *itálico* e [links](https://exemplo.com).
 
 | Campo | Obrigatório | O que é |
 |---|---|---|
-| `titulo` | sim | Título do post |
+| `titulo` | sim | Título do post, em minúsculas no estilo do site |
 | `data` | sim | Data no formato `AAAA-MM-DD` |
-| `tema` | sim | Uma palavra: `ensaio`, `técnica`, `notas`, `cinema`… |
-| `subtitulo` | não | Frase embaixo do título (também vira a descrição da prévia do link) |
+| `tema` | sim | Uma palavra: `ensaio`, `técnica`, `notas`, `cinema`… (sem ele, vira `notas`) |
+| `subtitulo` | não | Frase embaixo do título; também vira a descrição da prévia do link |
 | `tags` | não | Lista entre colchetes: `[java, livros]` |
 | `banner` | não | Caminho da foto de capa (passo 3) |
-| `contraste` | não | `alto` ou `baixo`, se o banner pontilhado ficar ruim |
-| `resumo` | não | Resumo escolhido à mão (sem ele, usa o primeiro parágrafo) |
+| `contraste` | não | `alto` ou `baixo`, se o banner pontilhado ficar ruim (o padrão é `normal`) |
+| `resumo` | não | Resumo escolhido à mão para listas e busca (sem ele, usa o primeiro parágrafo) |
 
-O tempo de leitura é calculado sozinho. Com 3 ou mais subtítulos `##`, o post ganha o sumário no topo.
+* O tempo de leitura é calculado sozinho.
+* Com 3 ou mais subtítulos `##`, o post ganha o sumário no topo.
+* Cada tema e cada tag viram links para os arquivos filtrados.
+* **Tema novo em inglês:** os temas `ensaio`, `técnica`, `notas` e `cinema` já têm tradução. Para um tema novo aparecer traduzido nas páginas em inglês, adicione-o em `TEMAS_EN`, no fim de `.vitepress/theme/lib/i18n.ts`; sem isso, ele aparece em português.
 
 ### 3. Adicione o banner (opcional)
 
 Crie a pasta `banner/` dentro do post, coloque a foto e aponte para ela no topo do `index.md`:
 
 ```
-posts/004-meu-primeiro-texto/
+posts/001-meu-primeiro-texto/
   index.md
   banner/
     banner.jpg
@@ -161,17 +165,25 @@ posts/004-meu-primeiro-texto/
 banner: banner/banner.jpg
 ```
 
-O build converte a foto em pontilhado (`banner.dither.png`, gerado sozinho e fora do git). No post, clicar no banner mostra a foto original.
+O build converte a foto em pontilhado (`banner.dither.png`, gerado sozinho e fora do git). No post, clicar no banner mostra a foto original. O banner pontilhado também vira a imagem da prévia do link (WhatsApp, Discord, X…), com a etiqueta "maylog_ · nº 001".
 
 * **Tamanho ideal:** horizontal, em 16:9, com 1600×900 ou 1920×1080, abaixo de ~500 KB.
+* **Formatos aceitos:** `.jpg`, `.png` ou `.webp`.
 * **Outros formatos** são cortados para 16:9 na parte com mais detalhe; fotos verticais perdem muito, então vale cortar antes.
 * **Se ficar apagado ou escuro demais**, use `contraste: alto` ou `contraste: baixo`.
 
-Sem banner, o post usa uma das cenas pontilhadas da home.
+Sem banner, o post usa uma das cenas pontilhadas da home (sempre a mesma para aquele post), e a prévia do link mostra essa cena emoldurada.
 
 ### 4. Adicione imagens no texto (opcional)
 
-Prints e imagens no meio do texto ficam no original, sem pontilhado. Coloque numa pasta `imagens/` e use o caminho relativo:
+Prints e imagens no meio do texto ficam no original, sem pontilhado, com uma borda fina. Coloque numa pasta `imagens/` dentro do post e use o caminho relativo:
+
+```
+posts/001-meu-primeiro-texto/
+  index.md
+  imagens/
+    print.png
+```
 
 ```md
 ![Print do terminal rodando o projeto](./imagens/print.png)
@@ -179,51 +191,143 @@ Prints e imagens no meio do texto ficam no original, sem pontilhado. Coloque num
 *Legenda em itálico, logo embaixo da imagem.*
 ```
 
+O texto entre colchetes é a descrição para leitores de tela; escreva o que a imagem mostra. As imagens só carregam quando o leitor chega perto, e o espaço delas já fica reservado (a página não pula). O mesmo caminho funciona na versão em inglês.
+
 ### 5. Use os recursos de formatação
 
+#### Texto
+
 ```md
-> Citação em itálico, com a linha dupla do lado.
+**negrito**, *itálico*, ***negrito e itálico***, ~~riscado~~ e `código no meio da frase`
 
-- item com ponto
-  - subitem
-
-1. lista numerada
-
-| coluna | outra |
-| :----- | ----: |
-| texto  | 10    |
-
-Uma frase com nota de rodapé[^1].
-
-[^1]: O texto da nota, que aparece no fim do post.
+[link para outro post](/posts/001-meu-primeiro-texto/)
+[link para fora](https://vitepress.dev)
+Um endereço solto vira link sozinho: https://github.com/maykeesa
 ```
 
-Blocos de código com a linguagem, o nome do arquivo entre colchetes e linhas destacadas entre chaves:
+* **Parágrafos:** deixe uma linha em branco entre eles. Uma quebra de linha simples continua no mesmo parágrafo.
+* **HTML** funciona quando o Markdown não basta: `<kbd>Ctrl</kbd>` para teclas, `H<sub>2</sub>O` para subscrito, `10<sup>3</sup>` para sobrescrito e `<mark>texto</mark>` para marcar.
+* **Emojis** por código: `:tada:` `:coffee:` `:books:`.
+
+#### Subtítulos
+
+```md
+## uma parte do texto
+### um subtítulo menor
+#### um detalhe dentro da parte
+```
+
+Só os `##` entram no sumário do topo. Use minúsculas, como no resto do site.
+
+#### Listas
+
+```md
+- item com ponto
+- outro item
+  - subitem (ponto vazado)
+    - terceiro nível (quadradinho)
+
+1. passo um
+2. passo dois
+   1. subpasso
+```
+
+Para aninhar, recue o subitem com 2 espaços (3 nas listas numeradas, alinhando com o texto do item de cima).
+
+#### Citações
+
+```md
+> Uma citação vira um bloco em itálico com uma linha dupla do lado.
+
+> Uma citação com mais de um parágrafo.
+>
+> Segundo parágrafo.
+>
+> — quem disse
+
+> Ele me disse:
+>
+> > uma citação dentro de outra.
+```
+
+#### Código
+
+Blocos de código ganham cores do tema, números de linha e o botão "copiar" sozinhos. Escreva a linguagem depois das três crases; o nome do arquivo entre colchetes aparece na barra do bloco; linhas entre chaves ficam destacadas:
 
 ````md
-```ts [src/posts.ts] {2}
-const a = 1
-const b = 2 // esta linha fica destacada
+```ts [src/posts.ts]
+export function recentes(posts: Post[], n = 6) {
+  return posts.slice(0, n)
+}
+```
+
+```js [destaque.js] {2,4-5}
+const tema = 'sepia'
+const cor = escolherCor(tema) // linha 2 destacada
+
+function escolherCor(t) {      // linhas 4 e 5 destacadas
+  return t === 'dark' ? '#dcdad3' : '#141414'
+}
 ```
 ````
 
-Caixas especiais:
+* **Linguagens:** `ts`, `js`, `vue`, `css`, `html`, `bash`, `json`, `java`, `python`, `sql`, `yaml` e praticamente qualquer outra.
+* **Sem linguagem** (só as três crases), o bloco fica como texto puro, bom para saídas de terminal e ASCII art.
+* O nome do arquivo e o destaque são opcionais e podem ser usados juntos ou separados.
+
+#### Tabelas
+
+```md
+| registro | título            | minutos |
+| :------: | :---------------- | ------: |
+|   001    | primeiro registro |       1 |
+```
+
+Os dois-pontos na linha de baixo do cabeçalho alinham a coluna: `:---` à esquerda, `:---:` ao centro, `---:` à direita.
+
+#### Caixas especiais
 
 ```md
 ::: tip
 Uma dica.
 :::
 
+::: info
+Uma informação neutra.
+:::
+
 ::: warning
 Um aviso.
 :::
 
+::: danger
+Um perigo.
+:::
+
 ::: details clique para abrir
-Um texto escondido.
+Um texto escondido, bom para spoilers.
+:::
+
+::: tip um título próprio
+Qualquer caixa aceita um título depois do tipo.
 :::
 ```
 
-O post `003-tudo-que-o-markdown-faz` mostra todos esses recursos juntos.
+Sem título, as caixas mostram "dica", "info", "atenção", "perigo" e "detalhes" (em inglês na versão em inglês).
+
+#### Notas de rodapé e separadores
+
+```md
+Uma frase com nota de rodapé[^1], e outra com uma nota de nome[^nota-longa].
+
+---
+
+[^1]: Uma nota curta.
+[^nota-longa]: Uma nota mais longa, com **formatação** e [links](https://jsonfeed.org).
+```
+
+* As notas aparecem no fim do post, numeradas na ordem, com o "↩" para voltar ao ponto do texto. O texto delas pode ficar em qualquer lugar do arquivo; o costume é deixar no fim.
+* Uma linha com `---` sozinha (com linha em branco antes e depois) vira um separador horizontal.
 
 ### 6. Veja como ficou
 
@@ -231,7 +335,7 @@ O post `003-tudo-que-o-markdown-faz` mostra todos esses recursos juntos.
 npm run dev
 ```
 
-Abra http://localhost:5173: o post aparece na home e nos arquivos. Cada vez que você salva o `index.md`, a página atualiza sozinha.
+Abra http://localhost:5173: o post aparece na home e nos arquivos. Cada vez que você salva o `index.md`, a página atualiza sozinha. Vale olhar nos três temas (white, dark e sepia) e no celular.
 
 ### 7. Versão em inglês (opcional)
 
@@ -246,17 +350,21 @@ subtitulo: A short sentence below the title.
 The first paragraph of the post.
 ```
 
-Data, tema, tags e banner vêm do `index.md`. Sem o `index.en.md`, a página em inglês mostra o texto em português com um aviso, e o botão "en" do post fica desativado.
+* Data, tema, tags e banner vêm do `index.md`. Se usar `resumo` no post, dá para traduzi-lo aqui também.
+* Sem o `index.en.md`, a página em inglês mostra o texto em português com um aviso, e o botão "en" do post fica desativado.
+* Só os posts com versão em inglês entram no feed em inglês.
 
 ### 8. Publique
 
 ```bash
-git add posts/004-meu-primeiro-texto
-git commit -m "feat: adiciona o registro 004 sobre meu primeiro texto"
+git add posts/001-meu-primeiro-texto
+git commit -m "feat: adiciona o registro 001 sobre meu primeiro texto"
 git push
 ```
 
-> **Rascunhos:** pastas que começam com `_` (como `posts/_rascunho/`) ficam fora da lista e dos feeds.
+A Vercel publica o site sozinha em cerca de um minuto depois do `git push`.
+
+> **Rascunhos:** comece o nome da pasta com `_` (como `posts/_ideia-nova/`). Ele aparece no `npm run dev` para você ver como está ficando, mas fica fora do site publicado, dos feeds e do sitemap. Para publicar, renomeie a pasta com o número (`004-ideia-nova`).
 
 <br>
 
@@ -307,4 +415,4 @@ maylog-blog/
 
 ## 📄 Direitos autorais
 
-Código e textos © 2026 [Mayke Erick](https://github.com/maykeesa). Todos os direitos reservados.
+Código e textos © 2026 [Mayke Andrade](https://github.com/maykeesa). Todos os direitos reservados.
