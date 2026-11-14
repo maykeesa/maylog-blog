@@ -27,6 +27,10 @@ function onKey(e: KeyboardEvent) {
     input.value?.focus()
   }
 }
+function clearQuery() {
+  query.value = ''
+  input.value?.focus()
+}
 function onEsc() {
   query.value = ''
   input.value?.blur()
@@ -40,6 +44,7 @@ defineExpose({ focus: () => input.value?.focus() })
 <template>
   <form class="search" role="search" @submit.prevent>
     <label for="q">{{ t('search.label') }}</label>
+    <span class="field">
     <input
       id="q"
       ref="input"
@@ -50,6 +55,15 @@ defineExpose({ focus: () => input.value?.focus() })
       spellcheck="false"
       @keydown.esc="onEsc"
     />
+    <button
+      v-if="query"
+      type="button"
+      class="clear"
+      :aria-label="t('search.clear')"
+      :title="t('search.clear')"
+      @click="clearQuery"
+    >×</button>
+    </span>
     <span class="qmark" aria-hidden="true">?</span>
     <div class="hint" role="note" :aria-label="t('search.hint')">
       <div class="hint-box">
@@ -84,6 +98,12 @@ defineExpose({ focus: () => input.value?.focus() })
 label {
   color: var(--muted);
 }
+.field {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+}
 input {
   font-family: var(--mono);
   font-size: 13px;
@@ -91,11 +111,42 @@ input {
   background: var(--bg);
   border: 1px solid var(--ink);
   border-radius: 0;
-  padding: 3px 8px;
+  padding: 3px 24px 3px 8px;
   flex: 1;
   min-width: 0;
   width: 100%;
   box-shadow: inset 2px 2px 0 var(--bar);
+  -webkit-appearance: none;
+  appearance: none;
+}
+/* esconde o X azul que o navegador põe nos campos de busca; o nosso segue o tema */
+input::-webkit-search-cancel-button,
+input::-webkit-search-decoration {
+  -webkit-appearance: none;
+  appearance: none;
+  display: none;
+}
+.clear {
+  position: absolute;
+  right: 3px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  display: grid;
+  place-items: center;
+  font-family: var(--mono);
+  font-size: 15px;
+  line-height: 1;
+  color: var(--muted);
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+.clear:hover {
+  color: var(--ink);
+  background: var(--bar);
 }
 input::placeholder {
   color: var(--muted);

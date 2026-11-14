@@ -17,6 +17,7 @@ const pt = {
 
   'search.label': 'buscar',
   'search.ph': 'IA, vue, nostalgia…',
+  'search.clear': 'limpar busca',
   'search.hint': 'filtros da busca',
   'search.combine': 'combine filtros:',
   'search.keys': 'aperte / para buscar · esc limpa',
@@ -178,6 +179,7 @@ const en: Record<Key, string> = {
 
   'search.label': 'search',
   'search.ph': 'AI, vue, nostalgia…',
+  'search.clear': 'clear search',
   'search.hint': 'search filters',
   'search.combine': 'combine filters:',
   'search.keys': 'press / to search · esc clears',
