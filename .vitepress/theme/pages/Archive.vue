@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, shallowRef } from 'vue'
+import { computed, onBeforeUnmount, onMounted, shallowRef, watch } from 'vue'
 import { withBase } from 'vitepress'
 import type { Post } from '../data/posts.data'
 import { useI18n } from '../composables/useI18n'
@@ -77,6 +77,40 @@ function clear() {
 function setSort(v: string | null) {
   sort.value = (v || 'recentes') as Sort
 }
+
+/*
+  Filtros no endereço: /arquivos?tag=java&tema=ensaio&ano=2026&ordem=antigos
+  Abrir um link assim já mostra a lista filtrada, e mexer nos filtros atualiza o endereço
+  (dá para copiar e mandar). Só aparecem no endereço os filtros que não estão no padrão.
+*/
+const SORTS: Sort[] = ['recentes', 'antigos', 'az', 'curtos']
+
+function readUrl() {
+  const q = new URLSearchParams(location.search)
+  tema.value = q.get('tema')
+  tag.value = q.get('tag')
+  ano.value = q.get('ano')
+  const o = q.get('ordem') as Sort | null
+  sort.value = o && SORTS.includes(o) ? o : 'recentes'
+}
+
+function writeUrl() {
+  const q = new URLSearchParams()
+  if (tag.value) q.set('tag', tag.value)
+  if (tema.value) q.set('tema', tema.value)
+  if (ano.value) q.set('ano', ano.value)
+  if (sort.value !== 'recentes') q.set('ordem', sort.value)
+  const qs = q.toString()
+  const url = location.pathname + (qs ? `?${qs}` : '') + location.hash
+  if (url !== location.pathname + location.search + location.hash) history.replaceState(history.state, '', url)
+}
+
+onMounted(() => {
+  readUrl()
+  window.addEventListener('popstate', readUrl)
+})
+onBeforeUnmount(() => window.removeEventListener('popstate', readUrl))
+watch([sort, tema, tag, ano], writeUrl)
 </script>
 
 <template>
