@@ -12,6 +12,9 @@ import { useI18n } from '../composables/useI18n'
 const { post, newer, older } = useCurrentPost()
 const { t, href } = useI18n()
 const banner = computed(() => (post.value ? bannerOf(post.value) : undefined))
+
+/* link para os arquivos já filtrados (ex.: /arquivos?tag=java) */
+const archiveLink = (key: 'tag' | 'tema', value: string) => withBase(`${href('/arquivos')}?${key}=${encodeURIComponent(value)}`)
 </script>
 
 <template>
@@ -24,6 +27,10 @@ const banner = computed(() => (post.value ? bannerOf(post.value) : undefined))
     </div>
     <h1>{{ post.titulo }}</h1>
     <p v-if="post.subtitulo" class="dek">{{ post.subtitulo }}</p>
+    <p v-if="post.tags.length" class="post-tags">
+      <span class="post-tags-h">{{ t('post.tags') }}</span>
+      <a v-for="tg in post.tags" :key="tg" :href="archiveLink('tag', tg)">#{{ tg }}</a>
+    </p>
     <p v-if="post.ptOnly" class="langnote" lang="en">{{ t('post.ptOnly') }}</p>
 
     <figure v-if="banner?.dither" class="post-banner">
@@ -50,6 +57,21 @@ const banner = computed(() => (post.value ? bannerOf(post.value) : undefined))
 </template>
 
 <style>
+.post-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  font-family: var(--mono);
+  font-size: 13px;
+  margin: 0 0 28px;
+}
+/* logo abaixo do subtítulo: encosta mais nele */
+.dek + .post-tags {
+  margin-top: -16px;
+}
+.post-tags-h {
+  color: var(--muted);
+}
 .meta {
   font-family: var(--mono);
   font-size: 12px;
