@@ -47,9 +47,43 @@ export function pauseSmoothScroll(paused: boolean) {
   else lenis.start()
 }
 
-/* rola até um ponto ou elemento, com o mesmo movimento suave */
+/*
+  Links para um ponto da mesma página (notas de rodapé [1] e ↩, âncoras do texto) deslizam também.
+  O sumário já trata os próprios cliques; aqui fica o resto.
+*/
+function onAnchorClick(e: MouseEvent) {
+  if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return
+  const a = (e.target as HTMLElement | null)?.closest?.('a[href^="#"]') as HTMLAnchorElement | null
+  if (!a) return
+  const id = decodeURIComponent(a.getAttribute('href')!.slice(1))
+  const el = id && document.getElementById(id)
+  if (!el) return
+  e.preventDefault()
+  smoothScrollTo(el, -84)
+  history.replaceState(history.state, '', `#${id}`)
+}
+
+export function startAnchorScroll() {
+  document.addEventListener('click', onAnchorClick)
+}
+export function stopAnchorScroll() {
+  document.removeEventListener('click', onAnchorClick)
+}
+
+/* sai rápido e freia suave no fim */
+const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3)
+
+/*
+  Rola até um ponto ou elemento deslizando, em vez de pular.
+  offset: distância extra (negativa = para cima), útil para não esconder o alvo sob a barra fixa.
+  Para quem pediu "reduzir movimento", vai direto, sem animação.
+*/
 export function smoothScrollTo(target: number | HTMLElement, offset = 0) {
-  if (lenis) lenis.scrollTo(target, { offset })
-  else if (typeof target === 'number') window.scrollTo({ top: target })
-  else target.scrollIntoView({ block: 'start' })
+  if (lenis) {
+    lenis.scrollTo(target, { offset, duration: 1.1, easing: easeOutCubic })
+    return
+  }
+  const reduce = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  const top = typeof target === 'number' ? target : target.getBoundingClientRect().top + window.scrollY
+  window.scrollTo({ top: top + offset, behavior: reduce ? 'auto' : 'smooth' })
 }

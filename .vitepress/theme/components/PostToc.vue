@@ -3,6 +3,7 @@ import { computed, nextTick, onBeforeUnmount, onMounted, shallowRef, useTemplate
 import { useRoute } from 'vitepress'
 import Section from './Section.vue'
 import { useI18n } from '../composables/useI18n'
+import { smoothScrollTo } from '../composables/useSmoothScroll'
 
 /*
   Sumário do post, montado a partir dos subtítulos (##) já renderizados.
@@ -32,6 +33,24 @@ const partsLabel = computed(() => `${heads.value.length} ${t('toc.parts')}`)
 const currentLabel = computed(() => `§ ${pad(current.value + 1)} · ${heads.value[current.value]?.text ?? t('toc.intro')}`)
 const position = computed(() => `${pad(current.value + 1)}/${pad(heads.value.length)}`)
 const progressStyle = computed(() => ({ width: `${progress.value * 100}%` }))
+
+/* distância da barra fixa: o subtítulo para logo abaixo dela, sem ficar escondido */
+const BAR_OFFSET = -84
+
+/* desliza até a parte do sumário e atualiza o endereço (#parte) sem pular */
+function goTo(id: string) {
+  popOpen.value = false
+  const el = document.getElementById(id)
+  if (!el) return
+  smoothScrollTo(el, BAR_OFFSET)
+  history.replaceState(history.state, '', `#${id}`)
+}
+
+/* o título da barra fixa leva de volta ao topo */
+function toTop() {
+  popOpen.value = false
+  smoothScrollTo(0)
+}
 
 let headEls: HTMLElement[] = []
 
@@ -108,7 +127,7 @@ watch(
   <Section v-if="hasToc" id="sumario" :label="t('toc.title')" :side="partsLabel" class="toc">
     <ol class="toc-list">
       <li v-for="h in heads" :key="h.id">
-        <a :href="`#${h.id}`"><span class="tt">{{ h.text }}</span><i></i>↓</a>
+        <a :href="`#${h.id}`" @click.prevent="goTo(h.id)"><span class="tt">{{ h.text }}</span><i></i>↓</a>
       </li>
     </ol>
   </Section>
@@ -116,7 +135,7 @@ watch(
   <div v-show="showBar" class="postbar">
     <div class="postbar-in">
       <div class="pb-text">
-        <span class="pb-title">{{ title }}</span>
+        <button type="button" class="pb-title" :title="t('toc.top')" @click="toTop">{{ title }}</button>
         <span class="pb-sec">{{ currentLabel }}</span>
       </div>
       <div v-if="hasToc" ref="wrap" class="pb-toc">
@@ -127,7 +146,7 @@ watch(
           <div class="pop-bar"><span>{{ t('toc.title') }}</span><span>{{ partsLabel }}</span></div>
           <ol class="toc-list">
             <li v-for="(h, i) in heads" :key="h.id" :class="{ active: i === current }">
-              <a :href="`#${h.id}`" @click="popOpen = false"><span class="tt">{{ h.text }}</span><i></i>↓</a>
+              <a :href="`#${h.id}`" @click.prevent="goTo(h.id)"><span class="tt">{{ h.text }}</span><i></i>↓</a>
             </li>
           </ol>
         </div>
@@ -218,12 +237,23 @@ watch(
   flex: 1;
 }
 .pb-title {
+  font: inherit;
   font-weight: 600;
   font-size: 15px;
   line-height: 1.3;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  color: var(--ink);
+  background: none;
+  border: 0;
+  padding: 0;
+  text-align: left;
+  cursor: pointer;
+}
+.pb-title:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 .pb-sec {
   font-family: var(--mono);
