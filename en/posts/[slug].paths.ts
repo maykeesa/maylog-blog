@@ -26,7 +26,11 @@ export default {
         const enFile = path.join(postsDir, folder, 'index.en.md')
         const hasEn = fs.existsSync(enFile)
         const src = fs.readFileSync(hasEn ? enFile : path.join(postsDir, folder, 'index.md'), 'utf8')
-        return { params: { slug: folder, ptOnly: !hasEn }, content: fixImages(matter(src).content, folder) }
+        /* sem tradução, o texto em português leva uma marca para os títulos das caixas ficarem em português */
+        const body = fixImages(matter(src).content, folder)
+        return { params: { slug: folder, ptOnly: !hasEn }, content: hasEn ? body : `<!-- maylog:pt -->
+
+${body}` }
       })
   }
 }

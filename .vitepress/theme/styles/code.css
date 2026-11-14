@@ -117,3 +117,11 @@ div[class*='language-'].line-numbers-mode pre {
 div[class*='language-'] .line.highlighted {
   background: var(--sel);
 }
+
+/* botão de copiar em inglês nas páginas em /en/ */
+html[lang^='en'] div[class*='language-'] > button.copy::before {
+  content: 'copy';
+}
+html[lang^='en'] div[class*='language-'] > button.copy.copied::before {
+  content: 'copied!';
+}

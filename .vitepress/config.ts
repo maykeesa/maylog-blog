@@ -8,6 +8,7 @@ import { ditherBanners } from './banners'
 import { feedDevServer, writeFeed } from './feed'
 import { ogHead, pageInfo, writeOgImages } from './og'
 import { codeTitle } from './codeTitle'
+import { containerLabels } from './containerLabels'
 
 /* Aplica o tema salvo antes da página aparecer, para não piscar no tema errado. */
 const themeBootstrap = `(function () {
@@ -65,6 +66,7 @@ export default defineConfig({
     config(md) {
       md.use(footnote)
       md.use(codeTitle)
+      md.use(containerLabels)
     }
   },
   /* mapa do site para buscadores (usa o domínio de site.ts) */
