@@ -49,17 +49,17 @@ export function ditherOutput(file: string) {
 
 /*
   - Banners: cortados em 16:9 (340×190) na parte com mais detalhe.
-  - Cenas (keepShape): mantêm o formato da imagem, só reduzidas para 340 de largura.
+  - Cenas (keepWidth): mantêm o formato da imagem, só reduzidas para a largura pedida.
   Fotos coloridas ganham o tratamento completo (escala de tons esticada e contraste);
   imagens que já vêm em tons de cinza, como as cenas exportadas, são pontilhadas como estão.
 */
-async function convert(src: string, out: string, contraste: string, keepShape = false) {
+async function convert(src: string, out: string, contraste: string, keepWidth?: number) {
   const meta = await sharp(src).metadata()
   const faithful = meta.space === 'b-w' || (meta.channels as number) === 1
   const a = faithful ? 1 : (CONTRASTE[contraste] ?? CONTRASTE.normal)
   let img = sharp(src).rotate()
-  img = keepShape
-    ? img.resize({ width: BANNER_W })
+  img = keepWidth
+    ? img.resize({ width: keepWidth })
     : img.resize(BANNER_W, BANNER_H, { fit: 'cover', position: faithful ? 'centre' : 'attention' })
   img = img.grayscale()
   if (!faithful) img = img.normalise().linear(a, -(128 * (a - 1)))
@@ -87,13 +87,22 @@ function imagesIn(dir: string): string[] {
   })
 }
 
-/* cenas pontilhadas da home e da 404: cenas/home/*.jpg e cenas/404/*.jpg */
+/*
+  Cenas pontilhadas: cenas/home/ e cenas/404/ (340 de largura, como estão),
+  e a foto da página sobre em cenas/sobre/ (160 de largura, o tamanho do retrato, com contraste alto).
+*/
+function sceneOptions(rel: string): { width: number; contraste: string } {
+  if (rel.startsWith('sobre/')) return { width: 160, contraste: 'alto' }
+  return { width: BANNER_W, contraste: 'normal' }
+}
+
 async function ditherScenes(root: string, log: (m: string) => void) {
   for (const src of imagesIn(path.join(root, 'cenas'))) {
     const out = ditherOutput(src)
     if (mtime(out) >= mtime(src)) continue
     try {
-      await convert(src, out, 'normal', true)
+      const { width, contraste } = sceneOptions(path.relative(path.join(root, 'cenas'), src).replace(/\\/g, '/'))
+      await convert(src, out, contraste, width)
       log(`[maylog] cena pontilhada: ${path.relative(root, out).replace(/\\/g, '/')}`)
     } catch (e) {
       log(`[maylog] não deu para converter ${path.relative(root, src)}: ${(e as Error).message}`)

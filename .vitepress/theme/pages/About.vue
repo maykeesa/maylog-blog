@@ -62,7 +62,7 @@ function goRedes() {
     <div class="about">
       <figure class="portrait">
         <slot name="portrait">
-          <SceneArt scene="eclipse" :ratio="160 / 180" :label="t('about.photo')" />
+          <SceneArt scene="sobre/foto" :ratio="160 / 180" :label="t('about.photo')" />
         </slot>
         <figcaption>{{ t('about.photo') }}</figcaption>
       </figure>

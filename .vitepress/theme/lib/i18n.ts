@@ -92,7 +92,7 @@ const pt = {
 
   'about.who': 'quem escreve',
   'about.file': 'sobre.md',
-  'about.photo': 'foto em pontilhado, como os banners',
+  'about.photo': 'eu, em pontilhado',
   'about.contact': 'contato',
   'about.copy': 'copiar',
   'about.copied': 'copiado!',
@@ -262,7 +262,7 @@ const en: Record<Key, string> = {
 
   'about.who': 'who writes',
   'about.file': 'about.md',
-  'about.photo': 'dithered photo, like the banners',
+  'about.photo': 'me, dithered',
   'about.contact': 'contact',
   'about.copy': 'copy',
   'about.copied': 'copied!',
