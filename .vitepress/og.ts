@@ -6,6 +6,7 @@ import type { HeadConfig, SiteConfig, TransformContext } from 'vitepress'
 import { site } from './theme/site'
 import { sceneBits, RANDOM_SCENES } from './theme/lib/dither'
 import { ditherOutput } from './banners'
+import { feedLinks } from './feed'
 
 /*
   Prévia do link ao compartilhar (WhatsApp, LinkedIn, X, Telegram…).
@@ -154,6 +155,7 @@ export function ogHead({ pageData }: TransformContext): HeadConfig[] {
     ['meta', { property: 'og:image:height', content: String(OG_H) }],
     ['meta', { property: 'og:locale', content: isEn ? 'en_US' : 'pt_BR' }],
     ['meta', { name: 'twitter:card', content: 'summary_large_image' }],
-    ['link', { rel: 'canonical', href: url }]
+    ['link', { rel: 'canonical', href: url }],
+    ...feedLinks(isEn)
   ]
 }

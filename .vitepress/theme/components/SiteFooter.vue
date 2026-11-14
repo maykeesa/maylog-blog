@@ -5,7 +5,7 @@ import Section from './Section.vue'
 import VisitCounter from './VisitCounter.vue'
 
 defineProps<{ footline?: string }>()
-const { t, lang, assunto } = useI18n()
+const { t, lang, assunto, href } = useI18n()
 </script>
 
 <template>
@@ -23,7 +23,7 @@ const { t, lang, assunto } = useI18n()
     <span v-if="footline" class="footline">{{ footline }}</span>
 
     <div class="badges">
-      <a class="badge" href="/feed.json" target="_blank" rel="noopener"><span>feed</span><span>{{ t('badge.rss') }}</span></a>
+      <a class="badge" :href="href('/feed.json')" target="_blank" rel="noopener"><span>feed</span><span>{{ t('badge.rss') }}</span></a>
       <span class="badge"><span>vue</span><span>{{ t('badge.vue') }}</span></span>
       <span class="badge"><span>.md</span><span>{{ t('badge.md') }}</span></span>
       <span class="badge"><span>www</span><span>{{ t('badge.www') }}</span></span>

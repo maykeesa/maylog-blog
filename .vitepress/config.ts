@@ -75,8 +75,6 @@ export default defineConfig({
     ['link', { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' }],
     ['link', { rel: 'icon', type: 'image/png', sizes: '32x32', href: '/favicon-32.png' }],
     ['link', { rel: 'apple-touch-icon', href: '/apple-touch-icon.png' }],
-    ['link', { rel: 'alternate', type: 'application/feed+json', title: 'maylog (json)', href: '/feed.json' }],
-    ['link', { rel: 'alternate', type: 'application/rss+xml', title: 'maylog (rss)', href: '/feed.xml' }],
     ['link', { rel: 'preconnect', href: 'https://fonts.googleapis.com' }],
     ['link', { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' }],
     [
