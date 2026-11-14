@@ -65,7 +65,8 @@ export default defineConfig({
   description: 'registros sobre o que der vontade de escrever.',
   cleanUrls: true,
   appearance: false,
-  srcExclude: ['README.md', 'TODO.md', '**/index.en.md'],
+  /* rascunhos (posts/_algo/) abrem no npm run dev, mas não viram página no site publicado */
+  srcExclude: ['README.md', 'TODO.md', '**/index.en.md', ...(process.env.NODE_ENV === 'production' ? ['posts/_*/**'] : [])],
   locales: {
     root: { label: 'pt', lang: 'pt-BR' },
     en: { label: 'en', lang: 'en', link: '/en/', description: 'notes on whatever feels worth writing.' }

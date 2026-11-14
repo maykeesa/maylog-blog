@@ -93,7 +93,8 @@ export default {
           en
         }
       })
-      .filter((p) => !p.slug.startsWith('_'))
+      /* rascunhos (pastas com _) só aparecem no npm run dev; no build ficam de fora */
+      .filter((p) => !p.slug.startsWith('_') || process.env.NODE_ENV !== 'production')
       .sort((a, b) => b.n.localeCompare(a.n))
   }
 }
