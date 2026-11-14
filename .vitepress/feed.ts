@@ -3,7 +3,9 @@ import path from 'node:path'
 import matter from 'gray-matter'
 import { createMarkdownRenderer, type SiteConfig } from 'vitepress'
 import type { Plugin } from 'vite'
-import { site } from './theme/site'
+import { readContent } from './readContent'
+
+const site = readContent()
 
 /*
   Feeds dos posts, com o texto completo:

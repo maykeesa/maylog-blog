@@ -1,0 +1,183 @@
+# ─────────────────────────────────────────────────────────────────────────────
+#  maylog · conteúdo do site
+#
+#  Tudo o que aparece no site e não vem dos posts fica aqui: dá para editar
+#  sem mexer em código.
+#
+#  · Com o "npm run dev" rodando, salve o arquivo e a página atualiza sozinha.
+#  · No site publicado, a mudança aparece no próximo build (depois do git push).
+#
+#  Regrinhas do formato (YAML):
+#  · O recuo importa: use 2 espaços (não use Tab).
+#  · Itens de lista começam com "- ".
+#  · Textos que começam com @ ou têm ":" no meio vão entre aspas: "@maykeesa".
+#  · Campos terminados em "_en" são a versão em inglês; se faltar, usa o português.
+# ─────────────────────────────────────────────────────────────────────────────
+
+
+# Dados gerais
+site:
+  nome: maylog
+  autor: Mayke Erick
+  url: https://maylog.com.br # domínio de exemplo: troque pelo seu quando tiver
+  frase: registros sobre o que der vontade de escrever.
+  frase_en: notes on whatever feels worth writing.
+
+
+# Bloco "agora" da página inicial
+agora:
+  atualizado: "2026-11-14" # aparece no canto da barra (dia.mês)
+  itens:
+    - rotulo: lendo
+      rotulo_en: reading
+      valor: Sozinho ao Redor do Mundo, de Joshua Slocum
+      valor_en: Sailing Alone Around the World, by Joshua Slocum
+
+    - rotulo: ouvindo
+      rotulo_en: listening
+      valor: Belchior
+
+    - rotulo: aprendendo
+      rotulo_en: learning
+      valor: nada em específico no momento
+      valor_en: nothing in particular right now
+
+    - rotulo: humor
+      rotulo_en: mood
+      valor: realista, com ressalvas
+      valor_en: realistic, with caveats
+
+
+# Bloco "acompanhando" da página inicial: canais que estou acompanhando agora
+acompanhando:
+  - nome: "@GutoGalego"
+    onde: youtube
+    url: https://www.youtube.com/@GutoGalego
+
+  - nome: "@IrmaosKatoosh"
+    onde: youtube
+    url: https://www.youtube.com/@IrmaosKatoosh
+
+  - nome: "@kaiodelaqua"
+    onde: youtube
+    url: https://www.youtube.com/@kaiodelaqua
+
+  - nome: "@andrenomaderaiz"
+    onde: youtube
+    url: https://www.youtube.com/@andrenomaderaiz
+
+
+# "me encontre por aí", no rodapé (assunto · nome da rede · usuário)
+redes:
+  - assunto: código
+    nome: github
+    usuario: /maykeesa
+    url: https://github.com/maykeesa
+
+  - assunto: trabalho
+    nome: linkedin
+    usuario: /in/maykeesa
+    url: https://www.linkedin.com/in/maykeesa/
+
+  - assunto: fotos
+    nome: instagram
+    usuario: "@maykeesa"
+    url: https://instagram.com/maykeesa
+
+  - assunto: jogos
+    nome: steam
+    usuario: /id/maykeesa
+    url: https://steamcommunity.com/id/maykeesa
+
+  - assunto: música
+    nome: spotify
+    usuario: playlists
+    url: https://open.spotify.com/user/22oxtqydoyl2g5sfy7gnum5va
+
+  - assunto: música
+    nome: stats.fm
+    usuario: o que mais ouço
+    usuario_en: what I play most
+    url: https://stats.fm/user/maykeesa
+
+  - assunto: filmes
+    nome: letterboxd
+    usuario: /MaykeESA
+    url: https://letterboxd.com/MaykeESA/
+
+  - assunto: anime
+    nome: myanimelist
+    usuario: /maykeesa
+    url: https://myanimelist.net/profile/maykeesa
+
+
+# Contato da página sobre
+contato:
+  email: maykeesa.contato@gmail.com
+
+
+# Ficha da página sobre (o contato entra sozinho no fim)
+ficha:
+  - rotulo: nome
+    rotulo_en: name
+    valor: Mayke Erick
+
+  - rotulo: na internet
+    rotulo_en: online
+    valor: maykeesa
+
+  - rotulo: ocupação
+    rotulo_en: occupation
+    valor: programador
+    valor_en: programmer
+
+  - rotulo: tempo integral
+    rotulo_en: full-time
+    valor: aprendiz da vida
+    valor_en: lifelong learner
+
+  - rotulo: interesses
+    rotulo_en: interests
+    valor: código, engenharia, motores, automobilismo, náutica, livros, filmes, jogos, música
+    valor_en: code, engineering, engines, motorsport, boats and the sea, books, film, games, music
+
+
+# Colofão da página sobre: como o site é feito
+colofao:
+  - rotulo: código
+    rotulo_en: code
+    valor: Vue.js + TypeScript (VitePress), feito com ajuda de IA
+    valor_en: Vue.js + TypeScript (VitePress), built with AI help
+
+  - rotulo: textos
+    rotulo_en: writing
+    valor: arquivos Markdown, um por post
+    valor_en: Markdown files, one per post
+
+  - rotulo: fontes
+    rotulo_en: fonts
+    valor: Source Serif 4 e IBM Plex Mono
+    valor_en: Source Serif 4 and IBM Plex Mono
+
+  - rotulo: imagens
+    rotulo_en: images
+    valor: banners convertidos em pontilhado de 1 bit
+    valor_en: banners converted to 1-bit dithering
+
+  - rotulo: temas
+    rotulo_en: themes
+    valor: white, dark e sepia
+    valor_en: white, dark and sepia
+
+  - rotulo: inspiração
+    rotulo_en: inspiration
+    valor: weblogs do começo dos anos 2000
+    valor_en: early-2000s weblogs
+
+
+# Contador de visitas do rodapé (botão 88×31).
+# Sem "url", é só de brincadeira: mostra "base" + as visitas deste navegador.
+# Com "url", busca o total de verdade: um endereço que responda {"count": 1234} a um POST.
+contador:
+  url: ""
+  base: 1337

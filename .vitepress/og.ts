@@ -3,9 +3,11 @@ import path from 'node:path'
 import matter from 'gray-matter'
 import sharp from 'sharp'
 import type { HeadConfig, SiteConfig, TransformContext } from 'vitepress'
-import { site } from './theme/site'
+import { readContent } from './readContent'
 import { ditherOutput } from './banners'
 import { feedLinks } from './feed'
+
+const site = readContent()
 
 /*
   Prévia do link ao compartilhar (WhatsApp, LinkedIn, X, Telegram…).

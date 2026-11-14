@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, shallowRef } from 'vue'
 import type { Post } from '../data/posts.data'
-import { site } from '../site'
+import { data as site } from '../data/site.data'
 import { useTheme } from '../composables/useTheme'
 import { useI18n } from '../composables/useI18n'
 import StoryModal from './StoryModal.vue'

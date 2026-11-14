@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { withBase } from 'vitepress'
-import { site, par } from '../site'
+import { par } from '../site'
+import { data as site } from '../data/site.data'
 import { useI18n } from '../composables/useI18n'
 import Section from '../components/Section.vue'
 import LogList from '../components/LogList.vue'

@@ -1,7 +1,7 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import { defineConfig } from 'vitepress'
-import { site } from './theme/site'
+import { readContent } from './readContent'
 import { createCssVariablesTheme } from 'shiki'
 import footnote from 'markdown-it-footnote'
 import { ditherBanners } from './banners'
@@ -10,6 +10,8 @@ import { ogHead, pageInfo, writeOgImages } from './og'
 import { codeTitle } from './codeTitle'
 import { containerLabels } from './containerLabels'
 import { imageDimensions } from './imageSize'
+
+const site = readContent()
 
 /* Aplica o tema salvo antes da página aparecer, para não piscar no tema errado. */
 const themeBootstrap = `(function () {
@@ -90,7 +92,7 @@ export default defineConfig({
       md.use(imageDimensions, process.cwd())
     }
   },
-  /* mapa do site para buscadores (usa o domínio de site.ts) */
+  /* mapa do site para buscadores (usa o domínio do conteudo.yml) */
   sitemap: {
     hostname: site.url.replace(/\/$/, '') + '/'
   },

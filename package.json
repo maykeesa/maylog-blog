@@ -16,10 +16,12 @@
   },
   "author": "Mayke Erick",
   "devDependencies": {
+    "@types/js-yaml": "4.0.9",
     "@types/markdown-it-footnote": "3.0.4",
     "@types/node": "22.10.2",
     "gray-matter": "4.0.3",
     "image-size": "1.1.1",
+    "js-yaml": "4.1.0",
     "markdown-it-footnote": "4.0.0",
     "sharp": "0.33.5",
     "shiki": "2.5.0",

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, shallowRef } from 'vue'
-import { site } from '../site'
+import { data as site } from '../data/site.data'
 import { useI18n } from '../composables/useI18n'
 
 /* Contador retrô em formato de botão 88×31: seis dígitos que rolam como um odômetro. */

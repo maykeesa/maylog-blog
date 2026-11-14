@@ -5,7 +5,7 @@ import { THEMES, useTheme } from '../composables/useTheme'
 import { ZOOM_CHOICES, useZoom } from '../composables/useZoom'
 import { useI18n } from '../composables/useI18n'
 import { useCurrentPost } from '../composables/usePosts'
-import { site } from '../site'
+import { data as site } from '../data/site.data'
 
 const { since } = defineProps<{ since?: string }>()
 const { theme, setTheme } = useTheme()

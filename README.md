@@ -276,7 +276,7 @@ As imagens sorteadas na home (e usadas nos posts sem banner) ficam em `cenas/hom
 | Arquivo | O que muda |
 |---|---|
 | `sobre.md` / `en/sobre.md` | Texto de apresentação da página sobre |
-| `.vitepress/theme/site.ts` | Domínio, frase do topo, bloco "agora", canais, redes, contato, ficha, colofão e contador de visitas |
+| `conteudo.yml` | Domínio, frase do topo, bloco "agora", canais, redes, contato, ficha, colofão e contador de visitas. Sem mexer em código: salve e, com `npm run dev`, a página atualiza na hora |
 | `.vitepress/theme/styles/tokens.css` | Cores dos temas white, dark e sepia |
 | `.vitepress/theme/lib/i18n.ts` | Textos da interface em português e inglês |
 | `TODO.md` | O que ainda falta fazer |
@@ -288,7 +288,8 @@ As imagens sorteadas na home (e usadas nos posts sem banner) ficam em `cenas/hom
 ```
 maylog-blog/
 ├── posts/                 ← um post por pasta (index.md, index.en.md, banner/, imagens/)
-├── cenas/                 ← cenas pontilhadas da home (home/) e da 404 (404/)
+├── cenas/                 ← cenas pontilhadas da home (home/), da 404 (404/) e a foto do sobre (sobre/)
+├── conteudo.yml           ← textos e links do site (agora, redes, ficha…)
 ├── en/                    ← páginas em inglês
 ├── public/                ← favicon e arquivos copiados como estão
 ├── index.md               ← página inicial

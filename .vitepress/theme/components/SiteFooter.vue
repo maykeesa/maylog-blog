@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { site } from '../site'
+import { data as site } from '../data/site.data'
 import { useI18n } from '../composables/useI18n'
 import Section from './Section.vue'
 import VisitCounter from './VisitCounter.vue'
