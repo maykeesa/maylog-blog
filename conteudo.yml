@@ -176,8 +176,10 @@ colofao:
 
 
 # Contador de visitas do rodapé (botão 88×31).
-# Sem "url", é só de brincadeira: mostra "base" + as visitas deste navegador.
-# Com "url", busca o total de verdade: um endereço que responda {"count": 1234} a um POST.
+# "url" é a função api/contador.ts, que guarda o total num banco Redis da Upstash (ligado na Vercel).
+# Cada pessoa conta uma vez por visita, não a cada página aberta.
+# "base" é somado ao total do banco. Sem "url" (ou com o serviço fora do ar), o contador
+# vira brincadeira: "base" + as visitas daquele navegador.
 contador:
-  url: ""
-  base: 1337
+  url: /api/contador
+  base: 0

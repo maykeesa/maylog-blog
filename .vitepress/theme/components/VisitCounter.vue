@@ -9,14 +9,26 @@ const rolled = shallowRef(false)
 const { t, lang } = useI18n()
 const locale = computed(() => (lang.value === 'en' ? 'en-US' : 'pt-BR'))
 
+/* a visita conta uma vez por sessão (até fechar a aba); as outras páginas só leem o total */
+const COUNTED = 'maylog-counted'
+function alreadyCounted() {
+  try {
+    if (sessionStorage.getItem(COUNTED)) return true
+    sessionStorage.setItem(COUNTED, '1')
+  } catch {
+    /* sem armazenamento: conta sempre */
+  }
+  return false
+}
+
 async function load(): Promise<number> {
   if (site.contador.url) {
     try {
-      const r = await fetch(site.contador.url, { method: 'POST' })
+      const r = await fetch(site.contador.url, { method: alreadyCounted() ? 'GET' : 'POST' })
       const j = await r.json()
-      if (typeof j.count === 'number') return j.count
+      if (typeof j.count === 'number') return site.contador.base + j.count
     } catch {
-      /* serviço fora do ar: cai no modo brincadeira */
+      /* serviço fora do ar (ou npm run dev, que não roda a função): cai no modo brincadeira */
     }
   }
   let v = 1
