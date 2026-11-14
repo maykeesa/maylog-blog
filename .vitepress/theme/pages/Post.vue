@@ -192,6 +192,103 @@ const banner = computed(() => (post.value ? bannerOf(post.value) : undefined))
   font-weight: 500;
 }
 
+.post-body > h4 {
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--muted);
+  margin: 24px 0 4px;
+}
+.post-body > h4::before {
+  content: '#### ';
+}
+.post-body kbd {
+  font-family: var(--mono);
+  font-size: 0.75em;
+  border: 1px solid var(--rule);
+  border-bottom-width: 2px;
+  padding: 0 5px;
+  background: var(--bg);
+}
+.post-body mark {
+  background: var(--sel);
+  color: inherit;
+  padding: 0 2px;
+}
+.post-body s {
+  color: var(--muted);
+}
+
+/* blocos especiais: ::: tip, info, warning, danger, details */
+.post-body .custom-block {
+  margin: 1.6em 0;
+  padding: 10px 14px 12px;
+  border: 1px solid var(--rule);
+  background: var(--bar);
+  font-size: 16px;
+  line-height: 1.6;
+}
+.post-body .custom-block p {
+  margin: 0 0 0.6em;
+}
+.post-body .custom-block p:last-child {
+  margin-bottom: 0;
+}
+.post-body .custom-block-title {
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+.post-body .custom-block-title::before {
+  content: '▸ ';
+}
+.post-body .custom-block.tip .custom-block-title::before {
+  content: '✦ ';
+}
+.post-body .custom-block.warning {
+  background: var(--sel);
+  border-color: var(--ink);
+}
+.post-body .custom-block.warning .custom-block-title::before {
+  content: '! ';
+}
+.post-body .custom-block.danger {
+  background: var(--bg);
+  border: 3px double var(--ink);
+}
+.post-body .custom-block.danger .custom-block-title::before {
+  content: '× ';
+}
+.post-body details.custom-block {
+  background: var(--bg);
+}
+.post-body details.custom-block > summary {
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  list-style: none;
+}
+.post-body details.custom-block > summary::-webkit-details-marker {
+  display: none;
+}
+.post-body details.custom-block > summary::before {
+  content: '▸ ';
+}
+.post-body details.custom-block[open] > summary::before {
+  content: '▾ ';
+}
+.post-body details.custom-block[open] > summary {
+  margin-bottom: 8px;
+}
+.post-body .custom-block :not(pre) > code {
+  background: var(--bg);
+}
+.post-body .custom-block.warning :not(pre) > code {
+  background: var(--bg);
+}
+
 /* notas de rodapé */
 .post-body .footnote-ref a {
   font-family: var(--mono);

@@ -47,6 +47,14 @@ export default defineConfig({
   markdown: {
     theme: codeTheme,
     lineNumbers: true,
+    /* títulos padrão dos blocos ::: tip / info / warning / danger / details */
+    container: {
+      tipLabel: 'dica',
+      infoLabel: 'info',
+      warningLabel: 'atenção',
+      dangerLabel: 'perigo',
+      detailsLabel: 'detalhes'
+    },
     config(md) {
       md.use(footnote)
       md.use(codeTitle)
