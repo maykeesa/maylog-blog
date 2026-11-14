@@ -34,7 +34,7 @@ Com `####` dá para separar detalhes dentro de uma parte, sem pesar a página.
 
 ## listas
 
-Lista com traço, que vira o marcador "–" do site:
+Lista sem numeração, com ponto no primeiro nível, ponto vazado no segundo e quadradinho no terceiro:
 
 - primeiro item
 - segundo item, com um texto mais longo para ver como a linha quebra quando passa da largura da coluna e continua alinhada

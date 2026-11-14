@@ -144,8 +144,15 @@ const banner = computed(() => (post.value ? bannerOf(post.value) : undefined))
   margin: 0 0 1.1em;
 }
 .post-body ul li::marker {
-  content: '– ';
+  content: '•  ';
   color: var(--muted);
+}
+/* subníveis: ponto vazado e depois quadradinho */
+.post-body ul ul > li::marker {
+  content: '◦  ';
+}
+.post-body ul ul ul > li::marker {
+  content: '▪  ';
 }
 .post-body ol li::marker {
   color: var(--muted);
