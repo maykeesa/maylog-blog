@@ -1,24 +1,31 @@
 <script setup lang="ts">
 import { withBase } from 'vitepress'
 import type { Post } from '../data/posts.data'
+import { useI18n } from '../composables/useI18n'
 
 /* Lista no formato de log: nº · data · tema · título ........ → */
 defineProps<{
   posts: Post[]
   head?: boolean
 }>()
+const { t } = useI18n()
 </script>
 
 <template>
-  <div v-if="head" class="loghead"><span>nº</span><span>data</span><span>tema</span><span>título</span></div>
+  <div v-if="head" class="loghead">
+    <span>{{ t('log.n') }}</span><span>{{ t('log.date') }}</span><span>{{ t('log.topic') }}</span><span>{{ t('log.title') }}</span>
+  </div>
   <ul class="log">
-    <slot name="before" />
     <li v-for="p in posts" :key="p.url">
       <a :href="withBase(p.url)" :data-n="p.n">
         <span class="n">{{ p.n }}</span>
         <span class="d">{{ p.dataLog }}</span>
         <span class="c">{{ p.tema }}</span>
-        <span class="t"><b>{{ p.titulo }}</b><slot name="extra" :post="p" /><i></i>→</span>
+        <span class="t">
+          <b>{{ p.titulo }}</b>
+          <span v-if="p.ptOnly" class="ptb" :title="t('log.ptOnly')">pt</span>
+          <slot name="extra" :post="p" /><i></i>→
+        </span>
       </a>
     </li>
   </ul>
@@ -59,6 +66,7 @@ defineProps<{
   display: flex;
   gap: 8px;
   min-width: 0;
+  align-items: baseline;
 }
 .log .t b {
   font-weight: 500;
@@ -71,6 +79,13 @@ defineProps<{
   transform: translateY(-4px);
   min-width: 12px;
   font-style: normal;
+}
+.ptb {
+  font-size: 10px;
+  color: var(--muted);
+  border: 1px solid var(--rule);
+  padding: 0 3px;
+  flex: none;
 }
 .loghead {
   font-family: var(--mono);

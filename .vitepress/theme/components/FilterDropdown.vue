@@ -19,6 +19,7 @@ const props = defineProps<{
   findable?: boolean
   findPlaceholder?: string
   countLabel?: string
+  nothingLabel?: string
 }>()
 const emit = defineEmits<{ 'update:modelValue': [value: string | null] }>()
 
@@ -99,7 +100,7 @@ onBeforeUnmount(() => {
           </button>
         </li>
       </ul>
-      <p v-if="!shown.length" class="none">nada encontrado</p>
+      <p v-if="!shown.length" class="none">{{ nothingLabel || 'nada encontrado' }}</p>
     </div>
   </span>
 </template>

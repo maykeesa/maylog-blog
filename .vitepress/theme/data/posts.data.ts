@@ -1,16 +1,27 @@
-import { createContentLoader } from 'vitepress'
+import fs from 'node:fs'
+import path from 'node:path'
+import matter from 'gray-matter'
 
 /*
-  Lê todos os posts em posts/NNN-slug/index.md durante o build.
+  Lê todos os posts durante o build:
+    posts/NNN-slug/index.md      → versão em português (obrigatória)
+    posts/NNN-slug/index.en.md   → versão em inglês (opcional)
   O número do registro vem do começo do nome da pasta (ex.: 012-sobre-escrever).
 */
 
-export interface Post {
-  n: string
-  slug: string
-  url: string
+export interface PostText {
   titulo: string
   subtitulo: string
+  resumo: string
+  texto: string // texto puro, usado pela busca
+  minutos: number
+}
+
+export interface Post extends PostText {
+  n: string
+  slug: string
+  url: string // /posts/NNN-slug/
+  enUrl: string // /en/posts/NNN-slug
   data: string // 2026-11-13
   dataLog: string // 2026.11.13
   ano: string
@@ -18,9 +29,8 @@ export interface Post {
   tags: string[]
   banner?: string
   contraste?: string
-  minutos: number
-  resumo: string
-  texto: string // texto puro, usado pela busca
+  en?: PostText
+  ptOnly?: boolean // preenchido na versão traduzida da lista, quando o post não tem inglês
 }
 
 declare const data: Post[]
@@ -34,7 +44,6 @@ function isoDate(v: unknown): string {
 /* tira a marcação do markdown para virar texto puro (busca, resumo, tempo de leitura) */
 function plain(src: string): string {
   return src
-    .replace(/^---[\s\S]*?---/, '')
     .replace(/```[\s\S]*?```/g, ' ')
     .replace(/!\[[^\]]*\]\([^)]*\)/g, ' ')
     .replace(/\[([^\]]*)\]\([^)]*\)/g, '$1')
@@ -44,27 +53,47 @@ function plain(src: string): string {
     .trim()
 }
 
-function firstParagraph(src: string): string {
-  const body = src.replace(/^---[\s\S]*?---/, '').trim()
-  const para = body.split(/\n\s*\n/).find((p) => p.trim() && !/^(#|```|!\[|>|-|\*|\d+\.)/.test(p.trim()))
+function firstParagraph(body: string): string {
+  const para = body
+    .trim()
+    .split(/\n\s*\n/)
+    .find((p) => p.trim() && !/^(#|```|!\[|>|-|\*|\d+\.)/.test(p.trim()))
   return para ? plain(para) : ''
 }
 
-export default createContentLoader('posts/*/index.md', {
-  includeSrc: true,
-  transform(raw): Post[] {
-    return raw
-      .map(({ url, frontmatter: fm, src = '' }) => {
-        const folder = url.replace(/^\/posts\//, '').replace(/\/$/, '')
+function readText(file: string, fallbackTitle: string): { fm: Record<string, unknown>; text: PostText } {
+  const { data: fm, content } = matter(fs.readFileSync(file, 'utf8'))
+  const texto = plain(content)
+  return {
+    fm,
+    text: {
+      titulo: String(fm.titulo ?? fallbackTitle),
+      subtitulo: String(fm.subtitulo ?? ''),
+      resumo: String(fm.resumo ?? firstParagraph(content)),
+      texto,
+      minutos: Math.max(1, Math.round(texto.split(' ').length / 200))
+    }
+  }
+}
+
+export default {
+  watch: ['../../../posts/*/index.md', '../../../posts/*/index.en.md'],
+  load(files: string[]): Post[] {
+    const ptFiles = files.filter((f) => f.endsWith(`${path.sep}index.md`) || f.endsWith('/index.md'))
+    return ptFiles
+      .map((file) => {
+        const folder = path.basename(path.dirname(file))
         const n = (folder.match(/^(\d+)-/) || [])[1] || '000'
+        const { fm, text } = readText(file, folder)
+        const enFile = path.join(path.dirname(file), 'index.en.md')
+        const en = fs.existsSync(enFile) ? readText(enFile, text.titulo).text : undefined
         const data = isoDate(fm.data)
-        const texto = plain(src)
         return {
+          ...text,
           n,
           slug: folder,
-          url,
-          titulo: String(fm.titulo ?? folder),
-          subtitulo: String(fm.subtitulo ?? ''),
+          url: `/posts/${folder}/`,
+          enUrl: `/en/posts/${folder}`,
           data,
           dataLog: data.replace(/-/g, '.'),
           ano: data.slice(0, 4),
@@ -72,12 +101,10 @@ export default createContentLoader('posts/*/index.md', {
           tags: Array.isArray(fm.tags) ? fm.tags.map(String) : [],
           banner: fm.banner ? String(fm.banner) : undefined,
           contraste: fm.contraste ? String(fm.contraste) : undefined,
-          minutos: Math.max(1, Math.round(texto.split(' ').length / 200)),
-          resumo: String(fm.resumo ?? firstParagraph(src)),
-          texto
+          en
         }
       })
       .filter((p) => !p.slug.startsWith('_'))
       .sort((a, b) => b.n.localeCompare(a.n))
   }
-})
+}

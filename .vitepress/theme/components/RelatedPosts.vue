@@ -1,16 +1,18 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { withBase } from 'vitepress'
-import { data as posts, type Post } from '../data/posts.data'
+import type { Post } from '../data/posts.data'
+import { useI18n } from '../composables/useI18n'
 import Section from './Section.vue'
 import PostArt from './PostArt.vue'
 
 /* Até 3 posts parecidos: cada tag em comum vale 3 pontos, o mesmo tema vale 2; empate vai para a data mais próxima. */
 const props = defineProps<{ post: Post }>()
+const { t, posts } = useI18n()
 
 const related = computed(() => {
   const cur = props.post
-  return posts
+  return posts.value
     .filter((p) => p.url !== cur.url)
     .map((p) => {
       const shared = p.tags.filter((t) => cur.tags.includes(t))
@@ -24,13 +26,13 @@ const related = computed(() => {
 </script>
 
 <template>
-  <Section v-if="related.length" id="relacionados" label="registros relacionados" side="por tema e tags" class="related">
+  <Section v-if="related.length" id="relacionados" :label="t('rel.title')" :side="t('rel.side')" class="related">
     <div class="relgrid">
       <a v-for="x in related" :key="x.p.url" class="relcard" :href="withBase(x.p.url)">
         <PostArt :post="x.p" :width="170" :height="64" />
-        <span class="rm">nº {{ x.p.n }} · {{ x.p.dataLog }}</span>
+        <span class="rm">{{ t('log.n') }} {{ x.p.n }} · {{ x.p.dataLog }}</span>
         <span class="rt">{{ x.p.titulo }}</span>
-        <span class="rw">em comum: <b>{{ [...x.shared.map((t) => '#' + t), ...(x.same ? [x.p.tema] : [])].join(' · ') }}</b></span>
+        <span class="rw">{{ t('rel.common') }} <b>{{ [...x.shared.map((t) => '#' + t), ...(x.same ? [x.p.tema] : [])].join(' · ') }}</b></span>
       </a>
     </div>
   </Section>

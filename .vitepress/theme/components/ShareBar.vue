@@ -3,16 +3,19 @@ import { computed, onMounted, ref } from 'vue'
 import type { Post } from '../data/posts.data'
 import { site } from '../site'
 import { useTheme } from '../composables/useTheme'
+import { useI18n } from '../composables/useI18n'
 import StoryModal from './StoryModal.vue'
 
 const props = defineProps<{ post: Post }>()
 const { theme } = useTheme()
+const { t } = useI18n()
 
 const url = computed(() => site.url.replace(/\/$/, '') + props.post.url)
 const wa = computed(() => 'https://wa.me/?text=' + encodeURIComponent(`${props.post.titulo} — ${url.value}`))
 const li = computed(() => 'https://www.linkedin.com/sharing/share-offsite/?url=' + encodeURIComponent(url.value))
 
-const copyLabel = ref('copiar link')
+const copied = ref('')
+const copyLabel = computed(() => copied.value || t('share.copy'))
 const hasNative = ref(false)
 const story = ref<{ quote: string; fromSelection: boolean } | null>(null)
 
@@ -20,14 +23,14 @@ onMounted(() => (hasNative.value = typeof navigator.share === 'function'))
 
 async function copy() {
   const done = (m: string) => {
-    copyLabel.value = m
-    setTimeout(() => (copyLabel.value = 'copiar link'), 1800)
+    copied.value = m
+    setTimeout(() => (copied.value = ''), 1800)
   }
   try {
     await navigator.clipboard.writeText(url.value)
-    done('link copiado!')
+    done(t('share.copied'))
   } catch {
-    done(`não deu: ${url.value}`)
+    done(`${t('share.fail')} ${url.value}`)
   }
 }
 async function native() {
@@ -54,17 +57,17 @@ function openStory() {
 
 <template>
   <div class="share">
-    <span class="share-h">compartilhar:</span>
+    <span class="share-h">{{ t('share.title') }}</span>
     <button type="button" class="linkbtn" @click="copy">{{ copyLabel }}</button>
     <span class="sep">·</span>
-    <button type="button" class="linkbtn" @mousedown.prevent @click="openStory">imagem para stories</button>
+    <button type="button" class="linkbtn" @mousedown.prevent @click="openStory">{{ t('share.story') }}</button>
     <span class="sep">·</span>
     <a :href="wa" target="_blank" rel="noopener">whatsapp</a>
     <span class="sep">·</span>
     <a :href="li" target="_blank" rel="noopener">linkedin</a>
     <template v-if="hasNative">
       <span class="sep">·</span>
-      <button type="button" class="linkbtn" @click="native">mais opções…</button>
+      <button type="button" class="linkbtn" @click="native">{{ t('share.more') }}</button>
     </template>
   </div>
   <StoryModal

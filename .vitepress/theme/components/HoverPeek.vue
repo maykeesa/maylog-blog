@@ -2,7 +2,7 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useRoute } from 'vitepress'
 import { watch } from 'vue'
-import { data as posts } from '../data/posts.data'
+import { useI18n } from '../composables/useI18n'
 import PostArt from './PostArt.vue'
 
 /*
@@ -12,7 +12,8 @@ import PostArt from './PostArt.vue'
 const n = ref<string | null>(null)
 const pos = ref({ left: 0, top: 0 })
 const box = ref<HTMLElement>()
-const post = computed(() => posts.find((p) => p.n === n.value))
+const { t, posts } = useI18n()
+const post = computed(() => posts.value.find((p) => p.n === n.value))
 const route = useRoute()
 
 let enabled = false
@@ -67,12 +68,12 @@ watch(() => route.path, hide)
 
 <template>
   <div v-if="post" ref="box" class="peek" aria-hidden="true" :style="{ left: pos.left + 'px', top: pos.top + 'px' }">
-    <div class="peek-bar"><span>entrada {{ post.n }}.md</span><span>_□×</span></div>
+    <div class="peek-bar"><span>{{ t('peek.entry') }} {{ post.n }}{{ post.en && !post.ptOnly && post.url.startsWith('/en/') ? '.en' : '' }}.md</span><span>_□×</span></div>
     <div class="peek-body">
       <PostArt :post="post" :width="280" :height="80" />
       <p class="peek-t">{{ post.titulo }}</p>
       <p class="peek-ex">{{ post.resumo }}</p>
-      <p class="peek-m">{{ post.minutos }} min · {{ post.tema }} · clique para ler</p>
+      <p class="peek-m">{{ post.minutos }} min · {{ post.tema }}<template v-if="post.ptOnly"> · {{ t('log.ptOnly') }}</template> · {{ t('peek.read') }}</p>
     </div>
   </div>
 </template>

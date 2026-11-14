@@ -1,23 +1,27 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { Content } from 'vitepress'
-import { data as posts } from '../data/posts.data'
-import { site } from '../site'
+import { site, par } from '../site'
+import { useI18n } from '../composables/useI18n'
 import Section from '../components/Section.vue'
 import DitherArt from '../components/DitherArt.vue'
 
-const since = computed(() => posts[posts.length - 1]?.ano ?? '')
-const copyLabel = ref('copiar')
+const { t, lang, posts } = useI18n()
+const since = computed(() => posts.value[posts.value.length - 1]?.ano ?? '')
+const ficha = computed(() => site.ficha.map((f) => par(f, lang.value)))
+const colofao = computed(() => site.colofao.map((f) => par(f, lang.value)))
+const copied = ref('')
+const copyLabel = computed(() => copied.value || t('about.copy'))
 const mailEl = ref<HTMLElement>()
 
 async function copyMail() {
   const done = (msg: string) => {
-    copyLabel.value = msg
-    setTimeout(() => (copyLabel.value = 'copiar'), 1800)
+    copied.value = msg
+    setTimeout(() => (copied.value = ''), 1800)
   }
   try {
     await navigator.clipboard.writeText(site.contato.email)
-    done('copiado!')
+    done(t('about.copied'))
   } catch {
     if (mailEl.value) {
       const r = document.createRange()
@@ -26,7 +30,7 @@ async function copyMail() {
       s?.removeAllRanges()
       s?.addRange(r)
     }
-    done('selecionado, use ctrl+c')
+    done(t('about.selected'))
   }
 }
 
@@ -41,26 +45,26 @@ function goRedes() {
 </script>
 
 <template>
-  <Section id="quem" label="quem escreve" side="sobre.md">
+  <Section id="quem" :label="t('about.who')" :side="t('about.file')">
     <div class="about">
       <figure class="portrait">
         <slot name="portrait">
-          <DitherArt :width="160" :height="180" scene="lua" :seed="2025" label="Espaço para foto, em pontilhado" />
+          <DitherArt :width="160" :height="180" scene="lua" :seed="2025" :label="t('about.photo')" />
         </slot>
-        <figcaption>foto em pontilhado, como os banners</figcaption>
+        <figcaption>{{ t('about.photo') }}</figcaption>
       </figure>
       <dl class="ficha">
-        <template v-for="f in site.ficha" :key="f.rotulo">
+        <template v-for="f in ficha" :key="f.rotulo">
           <dt>{{ f.rotulo }}</dt>
           <dd>{{ f.valor }}</dd>
         </template>
-        <dt>contato</dt>
+        <dt>{{ t('about.contact') }}</dt>
         <dd class="contact">
           <a ref="mailEl" class="mail" :href="`mailto:${site.contato.email}`">{{ site.contato.email }}</a>
           <span class="contact-actions">
             <button type="button" class="linkbtn" @click="copyMail">{{ copyLabel }}</button>
             <span class="sep">·</span>
-            <button type="button" class="linkbtn" @click="goRedes">me encontre por aí ↓</button>
+            <button type="button" class="linkbtn" @click="goRedes">{{ t('about.findMe') }}</button>
           </span>
         </dd>
       </dl>
@@ -70,19 +74,16 @@ function goRedes() {
     </div>
   </Section>
 
-  <Section id="sobreblog" label="sobre o maylog" :side="since ? `desde ${since}` : undefined">
+  <Section id="sobreblog" :label="t('about.blog')" :side="since ? `${t('since')} ${since}` : undefined">
     <div class="about-text">
-      <p>
-        O nome junta "may", de Mayke, com "log", de weblog: o jeito antigo de chamar um blog, quando ele era um registro
-        com data no topo. Por isso a página inicial parece um arquivo de log, com número, data e tema em cada linha.
-      </p>
-      <p>Escrevo sobre o que der vontade, sem calendário. Não há anúncios, cookies nem rastreio. Para acompanhar, use o RSS.</p>
+      <p>{{ t('about.blog1') }}</p>
+      <p>{{ t('about.blog2') }}</p>
     </div>
   </Section>
 
-  <Section id="colofao" label="colofão" side="como o site é feito">
+  <Section id="colofao" :label="t('about.colophon')" :side="t('about.colophonSide')">
     <dl class="ficha">
-      <template v-for="f in site.colofao" :key="f.rotulo">
+      <template v-for="f in colofao" :key="f.rotulo">
         <dt>{{ f.rotulo }}</dt>
         <dd>{{ f.valor }}</dd>
       </template>

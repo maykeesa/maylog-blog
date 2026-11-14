@@ -44,6 +44,21 @@ banner: banner.jpg
 
 Os posts `001` e `002` são exemplos: troque ou apague quando escrever os seus.
 
+## versão em inglês
+
+O site inteiro existe em português (`/`) e em inglês (`/en/`). Para um post ter versão em inglês, crie um `index.en.md` na mesma pasta:
+
+```yaml
+---
+titulo: on writing without an audience
+subtitulo: A blog without metrics is a notebook with the door open.
+---
+```
+
+Data, tema, tags e banner vêm do `index.md`. Sem o `index.en.md`, a página em inglês mostra o texto em português com um aviso, e o botão "en" do post em português fica desativado.
+
+O texto de apresentação em inglês fica em `en/sobre.md`, e os textos da interface em `.vitepress/theme/lib/i18n.ts`.
+
 ## onde editar o resto
 
 - `sobre.md`: o texto de apresentação da página sobre.

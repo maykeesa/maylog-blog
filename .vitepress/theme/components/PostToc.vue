@@ -2,6 +2,7 @@
 import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vitepress'
 import Section from './Section.vue'
+import { useI18n } from '../composables/useI18n'
 
 /*
   Sumário do post, montado a partir dos subtítulos (##) já renderizados.
@@ -22,6 +23,7 @@ const popOpen = ref(false)
 const progress = ref(0)
 const wrap = ref<HTMLElement>()
 const route = useRoute()
+const { t } = useI18n()
 
 let headEls: HTMLElement[] = []
 
@@ -80,7 +82,7 @@ watch(
 </script>
 
 <template>
-  <Section v-if="heads.length >= MIN" id="sumario" label="neste registro" :side="`${heads.length} partes`" class="toc">
+  <Section v-if="heads.length >= MIN" id="sumario" :label="t('toc.title')" :side="`${heads.length} ${t('toc.parts')}`" class="toc">
     <ol class="toc-list">
       <li v-for="h in heads" :key="h.id">
         <a :href="`#${h.id}`"><span class="tt">{{ h.text }}</span><i></i>↓</a>
@@ -92,14 +94,14 @@ watch(
     <div class="postbar-in">
       <div class="pb-text">
         <span class="pb-title">{{ props.title }}</span>
-        <span class="pb-sec">§ {{ pad(current + 1) }} · {{ current >= 0 ? heads[current]?.text : 'introdução' }}</span>
+        <span class="pb-sec">§ {{ pad(current + 1) }} · {{ current >= 0 ? heads[current]?.text : t('toc.intro') }}</span>
       </div>
       <div v-if="heads.length >= MIN" ref="wrap" class="pb-toc">
         <button type="button" class="ddbtn" :aria-expanded="popOpen" @click.stop="popOpen = !popOpen">
-          <span class="k">sumário</span><b>{{ pad(current + 1) }}/{{ pad(heads.length) }}</b><span class="k">▾</span>
+          <span class="k">{{ t('toc.contents') }}</span><b>{{ pad(current + 1) }}/{{ pad(heads.length) }}</b><span class="k">▾</span>
         </button>
         <div v-if="popOpen" class="pop">
-          <div class="pop-bar"><span>neste registro</span><span>{{ heads.length }} partes</span></div>
+          <div class="pop-bar"><span>{{ t('toc.title') }}</span><span>{{ heads.length }} {{ t('toc.parts') }}</span></div>
           <ol class="toc-list">
             <li v-for="(h, i) in heads" :key="h.id" :class="{ active: i === current }">
               <a :href="`#${h.id}`" @click="popOpen = false"><span class="tt">{{ h.text }}</span><i></i>↓</a>

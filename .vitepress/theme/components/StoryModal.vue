@@ -2,9 +2,11 @@
 import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import type { Post } from '../data/posts.data'
 import { drawStory, type StoryLayout, type StoryTheme } from '../lib/story'
+import { useI18n } from '../composables/useI18n'
 
 const props = defineProps<{ post: Post; url: string; quote: string; fromSelection: boolean; theme: StoryTheme }>()
 const emit = defineEmits<{ close: [] }>()
+const { t } = useI18n()
 
 const layout = ref<StoryLayout>(props.fromSelection ? 'citacao' : 'capa')
 const theme = ref<StoryTheme>(props.theme)
@@ -16,7 +18,7 @@ let blob: Blob | null = null
 const fileName = `maylog-${props.post.n}-stories.png`
 
 async function render() {
-  const cv = await drawStory(props.post, { layout: layout.value, theme: theme.value, quote: props.quote, url: props.url })
+  const cv = await drawStory(props.post, { layout: layout.value, theme: theme.value, quote: props.quote, url: props.url, labels: { entry: t('story.entry'), excerpt: t('story.excerpt'), readFull: t('story.readFull') } })
   src.value = cv.toDataURL('image/png')
   blob = await new Promise<Blob | null>((r) => cv.toBlob(r, 'image/png'))
 }
@@ -61,41 +63,41 @@ watch([layout, theme], render)
 
 const tip = () =>
   layout.value === 'capa'
-    ? 'capa: banner, título e subtítulo do post.'
+    ? t('story.tipCover')
     : props.fromSelection
-      ? 'citação: usando o trecho que você selecionou no post.'
-      : 'citação: usando o destaque do post. Dica: selecione um trecho do texto antes de abrir para usar outra frase.'
+      ? t('story.tipSel')
+      : t('story.tipQuote')
 </script>
 
 <template>
   <div class="modal-back" @click.self="emit('close')">
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="story-h">
       <div class="modal-bar">
-        <span id="story-h">imagem para stories · 1080×1920</span>
-        <button ref="closeBtn" type="button" class="linkbtn x" aria-label="Fechar" @click="emit('close')">×</button>
+        <span id="story-h">{{ t('story.title') }}</span>
+        <button ref="closeBtn" type="button" class="linkbtn x" :aria-label="t('story.close')" @click="emit('close')">×</button>
       </div>
       <div class="modal-body">
-        <div class="story-prev"><img v-if="src" :src="src" alt="Prévia da imagem para os stories" /></div>
+        <div class="story-prev"><img v-if="src" :src="src" :alt="t('story.preview')" /></div>
         <div class="story-ctl">
           <div>
-            <p class="lbl">formato</p>
+            <p class="lbl">{{ t('story.format') }}</p>
             <div class="seg">
-              <button type="button" :aria-pressed="layout === 'capa'" @click="layout = 'capa'">capa</button>
-              <button type="button" :aria-pressed="layout === 'citacao'" @click="layout = 'citacao'">citação</button>
+              <button type="button" :aria-pressed="layout === 'capa'" @click="layout = 'capa'">{{ t('story.cover') }}</button>
+              <button type="button" :aria-pressed="layout === 'citacao'" @click="layout = 'citacao'">{{ t('story.quote') }}</button>
             </div>
           </div>
           <div>
-            <p class="lbl">tema da imagem</p>
+            <p class="lbl">{{ t('story.theme') }}</p>
             <div class="seg">
               <button v-for="t in (['white', 'dark', 'sepia'] as const)" :key="t" type="button" :aria-pressed="theme === t" @click="theme = t">{{ t }}</button>
             </div>
           </div>
           <p class="tip">{{ tip() }}</p>
           <div class="actions">
-            <button type="button" class="btn" :disabled="!src" @click="download">baixar .png</button>
-            <button v-if="canSend" type="button" class="btn" :disabled="!src" @click="send">enviar para o instagram</button>
+            <button type="button" class="btn" :disabled="!src" @click="download">{{ t('story.download') }}</button>
+            <button v-if="canSend" type="button" class="btn" :disabled="!src" @click="send">{{ t('story.send') }}</button>
           </div>
-          <p class="note">No celular, "enviar para o instagram" abre o compartilhamento direto com a imagem.</p>
+          <p class="note">{{ t('story.note') }}</p>
         </div>
       </div>
     </div>

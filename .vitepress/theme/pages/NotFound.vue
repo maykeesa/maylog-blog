@@ -1,12 +1,28 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { withBase } from 'vitepress'
-import { data as posts, type Post } from '../data/posts.data'
+import { data as allPosts, type Post } from '../data/posts.data'
+import { DICT, TEMAS_EN, type I18nKey } from '../lib/i18n'
 import DitherArt from '../components/DitherArt.vue'
 import LogList from '../components/LogList.vue'
 
 const path = ref('')
 const stamp = ref('')
+
+/* a 404 é uma página só; o idioma sai do endereço que a pessoa tentou abrir */
+const isEn = computed(() => path.value.startsWith('/en/') || path.value === '/en')
+const t = (k: I18nKey, vars: Record<string, string | number> = {}) => {
+  let s = DICT[isEn.value ? 'en' : 'pt'][k]
+  for (const [a, b] of Object.entries(vars)) s = s.replace(`{${a}}`, String(b))
+  return s
+}
+const posts = computed<Post[]>(() =>
+  isEn.value
+    ? allPosts.map((p) => ({ ...p, ...(p.en ?? {}), tema: TEMAS_EN[p.tema] ?? p.tema, url: p.enUrl, ptOnly: !p.en }))
+    : allPosts
+)
+const home = computed(() => (isEn.value ? '/en/' : '/'))
+const archive = computed(() => (isEn.value ? '/en/arquivos' : '/arquivos'))
 
 onMounted(() => {
   path.value = decodeURIComponent(location.pathname)
@@ -17,7 +33,7 @@ onMounted(() => {
 
 const log = computed(() =>
   path.value
-    ? `${stamp.value} GET ${path.value}\n${stamp.value} procurando nos ${posts.length} registros…\n${stamp.value} ERRO 404: registro não encontrado`
+    ? `${stamp.value} GET ${path.value}\n${stamp.value} ${t('e404.searching', { n: posts.value.length })}\n${stamp.value} ${t('e404.error')}`
     : ''
 )
 
@@ -41,14 +57,14 @@ function similar(a: string, b: string) {
 const guesses = computed<Post[]>(() => {
   const target = slug(path.value.split('/').filter(Boolean).pop() || '')
   if (!target) return []
-  return posts
+  return posts.value
     .map((p) => ({ p, s: Math.max(similar(target, slug(p.titulo)), similar(target, slug(p.slug.replace(/^\d+-/, '')))) }))
     .filter((x) => x.s > 0.35)
     .sort((a, b) => b.s - a.s)
     .slice(0, 2)
     .map((x) => x.p)
 })
-const suggestions = computed(() => (guesses.value.length ? guesses.value : posts.slice(0, 3)))
+const suggestions = computed(() => (guesses.value.length ? guesses.value : posts.value.slice(0, 3)))
 
 function focusSearch() {
   window.scrollTo(0, 0)
@@ -60,18 +76,15 @@ function focusSearch() {
   <section class="err">
     <pre class="errlog">{{ log }}</pre>
     <h1 class="e404">404<span class="cursor" aria-hidden="true"></span></h1>
-    <p class="err-msg">
-      Esta página não existe. Talvez nunca tenha existido, talvez tenha mudado de endereço, ou o link veio com um erro de
-      digitação.
-    </p>
-    <DitherArt :width="340" :height="110" scene="sinal" :seed="404" label="Barras de teste de TV com chuvisco: sem sinal" />
+    <p class="err-msg">{{ t('e404.msg') }}</p>
+    <DitherArt :width="340" :height="110" scene="sinal" :seed="404" :label="t('e404.art')" />
     <h2 class="bar">
-      <span class="rlbl">▸ {{ guesses.length ? 'talvez você procurava' : 'enquanto isso, os mais recentes' }}</span>
+      <span class="rlbl">▸ {{ guesses.length ? t('e404.maybe') : t('e404.latest') }}</span>
     </h2>
     <LogList :posts="suggestions" />
     <p class="err-actions">
-      <a :href="withBase('/')">← voltar ao log</a><span>·</span><a :href="withBase('/arquivos')">ver arquivos</a><span>·</span
-      ><button type="button" class="linkbtn" @click="focusSearch">buscar no site</button>
+      <a :href="withBase(home)">{{ t('e404.back') }}</a><span>·</span><a :href="withBase(archive)">{{ t('e404.archive') }}</a><span>·</span
+      ><button type="button" class="linkbtn" @click="focusSearch">{{ t('e404.search') }}</button>
     </p>
   </section>
 </template>

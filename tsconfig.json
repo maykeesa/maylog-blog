@@ -11,5 +11,5 @@
     "noEmit": true,
     "types": ["vite/client", "node"]
   },
-  "include": [".vitepress/**/*.ts", ".vitepress/**/*.vue", "posts/**/*.ts"]
+  "include": [".vitepress/**/*.ts", ".vitepress/**/*.vue", "posts/**/*.ts", "en/**/*.ts"]
 }

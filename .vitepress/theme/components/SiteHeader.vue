@@ -2,13 +2,20 @@
 import { computed } from 'vue'
 import { useData, withBase } from 'vitepress'
 import { THEMES, useTheme } from '../composables/useTheme'
+import { useI18n } from '../composables/useI18n'
+import { useCurrentPost } from '../composables/usePosts'
 import { site } from '../site'
 
 const props = defineProps<{ since?: string }>()
 const { theme, setTheme } = useTheme()
 const { page, frontmatter } = useData()
+const { t, lang, href } = useI18n()
+const { post } = useCurrentPost()
 
-const topText = computed(() => (props.since ? `weblog pessoal · desde ${props.since}` : 'weblog pessoal'))
+const topText = computed(() => (props.since ? `${t('weblog')} · ${t('since')} ${props.since}` : t('weblog')))
+const frase = computed(() => (lang.value === 'en' ? site.fraseEn : site.frase))
+
+const isPost = computed(() => /^(en\/)?posts\//.test(page.value.relativePath))
 
 /* qual item do menu está ativo */
 const current = computed(() => {
@@ -16,39 +23,52 @@ const current = computed(() => {
   if (layout === 'home') return 'log'
   if (layout === 'arquivo') return 'arquivos'
   if (layout === 'sobre') return 'sobre'
-  return page.value.relativePath.startsWith('posts/') ? 'post' : ''
+  return ''
 })
 
-const nav = [
-  { key: 'log', label: 'log', href: '/' },
-  { key: 'arquivos', label: 'arquivos', href: '/arquivos' },
-  { key: 'sobre', label: 'sobre', href: '/sobre' }
-]
+const nav = computed(() => [
+  { key: 'log', label: t('nav.log'), href: href('/') },
+  { key: 'arquivos', label: t('nav.arquivos'), href: href('/arquivos') },
+  { key: 'sobre', label: t('nav.sobre'), href: href('/sobre') }
+])
+
+/* endereço da mesma página no outro idioma; num post sem inglês, o "en" fica indisponível */
+const switchTo = computed(() => {
+  if (isPost.value && post.value) {
+    return { pt: post.value.url.startsWith('/en/') ? `/posts/${post.value.slug}/` : post.value.url, en: post.value.enUrl }
+  }
+  const layout = frontmatter.value.layout
+  const path = layout === 'arquivo' ? '/arquivos' : layout === 'sobre' ? '/sobre' : '/'
+  return { pt: path, en: path === '/' ? '/en/' : `/en${path}` }
+})
+const enUnavailable = computed(() => lang.value === 'pt' && isPost.value && !!post.value && !post.value.en)
 </script>
 
 <template>
   <div class="top">
     <span class="top-txt">{{ topText }}</span>
     <div class="top-ctl">
-      <div class="themes" role="group" aria-label="Tema">
-        <button
-          v-for="t in THEMES"
-          :key="t"
-          type="button"
-          :aria-pressed="theme === t"
-          @click="setTheme(t)"
-        >{{ t }}</button>
+      <div class="langs" role="group" :aria-label="t('aria.lang')">
+        <a v-if="lang !== 'pt'" :href="withBase(switchTo.pt)" lang="pt-BR" hreflang="pt-BR">pt</a>
+        <span v-else class="on" aria-current="true">pt</span>
+        <span v-if="lang === 'en'" class="on" aria-current="true">en</span>
+        <span v-else-if="enUnavailable" class="off" :title="t('lang.noen')" aria-disabled="true">en</span>
+        <a v-else :href="withBase(switchTo.en)" lang="en" hreflang="en">en</a>
+      </div>
+      <span class="ctl-sep" aria-hidden="true">|</span>
+      <div class="themes" role="group" :aria-label="t('aria.theme')">
+        <button v-for="th in THEMES" :key="th" type="button" :aria-pressed="theme === th" @click="setTheme(th)">{{ th }}</button>
       </div>
     </div>
   </div>
 
   <header class="mast">
     <p class="wordmark">
-      <a :href="withBase('/')">may<span class="log">log</span><span class="cursor" aria-hidden="true"></span></a>
+      <a :href="withBase(href('/'))">may<span class="log">log</span><span class="cursor" aria-hidden="true"></span></a>
     </p>
-    <p class="tagline">{{ site.frase }}</p>
+    <p class="tagline">{{ frase }}</p>
     <div class="navrow">
-      <nav class="main" aria-label="Principal">
+      <nav class="main" :aria-label="lang === 'en' ? 'Main' : 'Principal'">
         <a
           v-for="item in nav"
           :key="item.key"
@@ -80,10 +100,18 @@ const nav = [
   align-items: baseline;
   gap: 4px 10px;
 }
+.ctl-sep {
+  color: var(--rule);
+}
+.langs,
 .themes {
   display: flex;
   gap: 4px;
+  align-items: baseline;
 }
+.langs a,
+.langs a:visited,
+.langs span,
 .themes button {
   font: inherit;
   background: none;
@@ -91,16 +119,32 @@ const nav = [
   color: var(--muted);
   cursor: pointer;
   padding: 2px 4px;
+  text-decoration: none;
 }
+.langs a:hover {
+  color: var(--ink);
+}
+.langs .on,
 .themes button[aria-pressed='true'] {
   color: var(--ink);
   font-weight: 700;
+  cursor: default;
 }
+.themes button[aria-pressed='true'] {
+  cursor: pointer;
+}
+.langs .on::before,
 .themes button[aria-pressed='true']::before {
   content: '[';
 }
+.langs .on::after,
 .themes button[aria-pressed='true']::after {
   content: ']';
+}
+.langs .off {
+  opacity: 0.45;
+  cursor: not-allowed;
+  text-decoration: line-through;
 }
 
 .mast {

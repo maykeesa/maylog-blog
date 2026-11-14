@@ -69,7 +69,16 @@ function wrap(ctx: CanvasRenderingContext2D, text: string, maxW: number) {
   return lines
 }
 
-export async function drawStory(p: Post, opts: { layout: StoryLayout; theme: StoryTheme; quote: string; url: string }) {
+export interface StoryLabels {
+  entry: string
+  excerpt: string
+  readFull: string
+}
+
+export async function drawStory(
+  p: Post,
+  opts: { layout: StoryLayout; theme: StoryTheme; quote: string; url: string; labels: StoryLabels }
+) {
   try {
     await Promise.all(
       ['600 96px "Source Serif 4"', 'italic 400 46px "Source Serif 4"', '700 64px "IBM Plex Mono"', '400 30px "IBM Plex Mono"'].map((f) =>
@@ -103,7 +112,7 @@ export async function drawStory(p: Post, opts: { layout: StoryLayout; theme: Sto
   ctx.fillRect(M, 360, W, 62)
   ctx.fillStyle = c.ink
   ctx.font = `400 27px ${MONO}`
-  ctx.fillText(opts.layout === 'capa' ? `▸ registro nº ${p.n}` : `▸ trecho do registro nº ${p.n}`, M + 18, 401)
+  ctx.fillText(`▸ ${opts.layout === 'capa' ? opts.labels.entry : opts.labels.excerpt} ${p.n}`, M + 18, 401)
   ctx.textAlign = 'right'
   ctx.fillStyle = c.muted
   ctx.fillText(p.dataLog, M + W - 18, 401)
@@ -168,7 +177,7 @@ export async function drawStory(p: Post, opts: { layout: StoryLayout; theme: Sto
   ctx.fillRect(M, 1560, W, 2)
   ctx.fillStyle = c.ink
   ctx.font = `500 34px ${MONO}`
-  ctx.fillText('leia completo no maylog ↗', M, 1622)
+  ctx.fillText(opts.labels.readFull, M, 1622)
   ctx.fillStyle = c.muted
   ctx.font = `400 26px ${MONO}`
   ctx.fillText(opts.url.replace(/^https?:\/\//, ''), M, 1666)

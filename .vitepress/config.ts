@@ -31,7 +31,11 @@ export default defineConfig({
   description: 'registros sobre o que der vontade de escrever.',
   cleanUrls: true,
   appearance: false,
-  srcExclude: ['README.md'],
+  srcExclude: ['README.md', '**/index.en.md'],
+  locales: {
+    root: { label: 'pt', lang: 'pt-BR' },
+    en: { label: 'en', lang: 'en', link: '/en/', description: 'notes on whatever feels worth writing.' }
+  },
   vite: {
     plugins: [ditherBanners()]
   },

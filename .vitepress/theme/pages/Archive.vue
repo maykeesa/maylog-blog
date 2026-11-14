@@ -1,12 +1,15 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { withBase } from 'vitepress'
-import { data as posts, type Post } from '../data/posts.data'
+import type { Post } from '../data/posts.data'
+import { useI18n } from '../composables/useI18n'
+import type { I18nKey } from '../lib/i18n'
 import Section from '../components/Section.vue'
 import FilterDropdown, { type Option } from '../components/FilterDropdown.vue'
 
 type Sort = 'recentes' | 'antigos' | 'az' | 'curtos'
 
+const { t, lang, entries, posts } = useI18n()
 const sort = ref<Sort>('recentes')
 const tema = ref<string | null>(null)
 const tag = ref<string | null>(null)
@@ -19,34 +22,31 @@ function counted(values: string[]): [string, number][] {
 }
 const byCount = (a: [string, number], b: [string, number]) => b[1] - a[1] || a[0].localeCompare(b[0])
 
-const sortOptions: Option[] = [
-  { value: 'recentes', label: 'recentes' },
-  { value: 'antigos', label: 'antigos' },
-  { value: 'az', label: 'a–z' },
-  { value: 'curtos', label: 'mais curtos' }
-]
+const sortOptions = computed<Option[]>(() =>
+  (['recentes', 'antigos', 'az', 'curtos'] as const).map((v) => ({ value: v, label: t(`sort.${v}` as I18nKey) }))
+)
 const temaOptions = computed<Option[]>(() => [
-  { value: null, label: 'todos', count: posts.length },
-  ...counted(posts.map((p) => p.tema)).sort(byCount).map(([v, n]) => ({ value: v, label: v, count: n }))
+  { value: null, label: t('arch.allM'), count: posts.value.length },
+  ...counted(posts.value.map((p) => p.tema)).sort(byCount).map(([v, n]) => ({ value: v, label: v, count: n }))
 ])
 const tagOptions = computed<Option[]>(() => [
-  { value: null, label: 'todas', count: posts.length },
-  ...counted(posts.flatMap((p) => p.tags)).sort(byCount).map(([v, n]) => ({ value: v, label: '#' + v, count: n }))
+  { value: null, label: t('arch.allF'), count: posts.value.length },
+  ...counted(posts.value.flatMap((p) => p.tags)).sort(byCount).map(([v, n]) => ({ value: v, label: '#' + v, count: n }))
 ])
 const anoOptions = computed<Option[]>(() => [
-  { value: null, label: 'todos', count: posts.length },
-  ...counted(posts.map((p) => p.ano))
+  { value: null, label: t('arch.allM'), count: posts.value.length },
+  ...counted(posts.value.map((p) => p.ano))
     .sort((a, b) => b[0].localeCompare(a[0]))
     .map(([v, n]) => ({ value: v, label: v, count: n }))
 ])
 
 const filtered = computed(() => {
-  const list = posts.filter(
+  const list = posts.value.filter(
     (p) => (!tema.value || p.tema === tema.value) && (!tag.value || p.tags.includes(tag.value)) && (!ano.value || p.ano === ano.value)
   )
   return [...list].sort((a, b) => {
     if (sort.value === 'antigos') return a.n.localeCompare(b.n)
-    if (sort.value === 'az') return a.titulo.localeCompare(b.titulo, 'pt')
+    if (sort.value === 'az') return a.titulo.localeCompare(b.titulo, lang.value === 'en' ? 'en' : 'pt')
     if (sort.value === 'curtos') return a.minutos - b.minutos || b.n.localeCompare(a.n)
     return b.n.localeCompare(a.n)
   })
@@ -66,11 +66,10 @@ const groups = computed(() => {
 
 const hasFilter = computed(() => !!(tema.value || tag.value || ano.value))
 const countText = computed(() =>
-  filtered.value.length === posts.length
-    ? `${posts.length} ${posts.length === 1 ? 'registro' : 'registros'}`
-    : `mostrando ${filtered.value.length} de ${posts.length}`
+  filtered.value.length === posts.value.length
+    ? entries(posts.value.length)
+    : t('arch.showing', { a: filtered.value.length, b: posts.value.length })
 )
-const plural = (n: number) => `${n} ${n === 1 ? 'registro' : 'registros'}`
 
 function clear() {
   tema.value = tag.value = ano.value = null
@@ -81,39 +80,60 @@ function setSort(v: string | null) {
 </script>
 
 <template>
-  <Section id="arquivo" label="arquivos" :side="countText">
+  <Section id="arquivo" :label="t('arch.title')" :side="countText">
     <div class="tools">
-      <FilterDropdown label="ordem" title="ordenar por" :options="sortOptions" :model-value="sort" @update:model-value="setSort" />
-      <FilterDropdown v-model="tema" label="tema" title="filtrar por tema" :options="temaOptions" :count-label="`${temaOptions.length - 1} opções`" />
+      <FilterDropdown :label="t('arch.sort')" :title="t('arch.sortTitle')" :options="sortOptions" :model-value="sort" @update:model-value="setSort" />
+      <FilterDropdown
+        v-model="tema"
+        :label="t('arch.topic')"
+        :title="t('arch.topicTitle')"
+        :options="temaOptions"
+        :count-label="`${temaOptions.length - 1} ${t('arch.options')}`"
+        :nothing-label="t('arch.nothing')"
+      />
       <FilterDropdown
         v-model="tag"
-        label="tag"
-        title="filtrar por tag"
+        :label="t('arch.tag')"
+        :title="t('arch.tagTitle')"
         :options="tagOptions"
         findable
-        find-placeholder="procurar tag…"
-        :count-label="`${tagOptions.length - 1} tags`"
+        :find-placeholder="t('arch.findTag')"
+        :count-label="`${tagOptions.length - 1} ${t('arch.tags')}`"
+        :nothing-label="t('arch.nothing')"
       />
-      <FilterDropdown v-model="ano" label="ano" title="filtrar por ano" :options="anoOptions" :count-label="`${anoOptions.length - 1} opções`" />
-      <button v-if="hasFilter" type="button" class="linkbtn reset" @click="clear">× limpar filtros</button>
+      <FilterDropdown
+        v-model="ano"
+        :label="t('arch.year')"
+        :title="t('arch.yearTitle')"
+        :options="anoOptions"
+        :count-label="`${anoOptions.length - 1} ${t('arch.options')}`"
+        :nothing-label="t('arch.nothing')"
+      />
+      <button v-if="hasFilter" type="button" class="linkbtn reset" @click="clear">{{ t('arch.clearX') }}</button>
     </div>
 
-    <div class="loghead"><span>nº</span><span>data</span><span>tema</span><span>título</span></div>
+    <div class="loghead">
+      <span>{{ t('log.n') }}</span><span>{{ t('log.date') }}</span><span>{{ t('log.topic') }}</span><span>{{ t('log.title') }}</span>
+    </div>
     <ul class="log">
       <template v-for="g in groups" :key="g.ano || 'all'">
-        <li v-if="g.ano" class="yr">{{ g.ano }} <span>{{ plural(g.posts.length) }}</span></li>
+        <li v-if="g.ano" class="yr">{{ g.ano }} <span>{{ entries(g.posts.length) }}</span></li>
         <li v-for="p in g.posts" :key="p.url">
           <a :href="withBase(p.url)" :data-n="p.n">
             <span class="n">{{ p.n }}</span>
             <span class="d">{{ p.dataLog }}</span>
             <span class="c">{{ p.tema }}</span>
-            <span class="t"><b>{{ p.titulo }}</b><span v-if="sort === 'curtos'" class="c">{{ p.minutos }} min</span><i></i>→</span>
+            <span class="t">
+              <b>{{ p.titulo }}</b>
+              <span v-if="p.ptOnly" class="ptb" :title="t('log.ptOnly')">pt</span>
+              <span v-if="sort === 'curtos'" class="c">{{ p.minutos }} min</span><i></i>→
+            </span>
           </a>
         </li>
       </template>
     </ul>
     <p v-if="!filtered.length" class="empty">
-      nenhum registro com esses filtros. <button type="button" class="linkbtn" @click="clear">limpar filtros</button>
+      {{ t('arch.empty') }} <button type="button" class="linkbtn" @click="clear">{{ t('arch.clear') }}</button>
     </p>
   </Section>
 </template>

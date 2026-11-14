@@ -1,19 +1,21 @@
 <script setup lang="ts">
 import { site } from '../site'
+import { useI18n } from '../composables/useI18n'
 import Section from './Section.vue'
 import VisitCounter from './VisitCounter.vue'
 
 defineProps<{ footline?: string }>()
+const { t, lang, assunto } = useI18n()
 </script>
 
 <template>
   <footer class="foot">
-    <Section id="redes" label="me encontre por aí" :side="`${site.redes.length} redes`">
+    <Section id="redes" :label="t('foot.findMe')" :side="`${site.redes.length} ${t('foot.networks')}`">
       <div class="sgrid">
         <a v-for="r in site.redes" :key="r.url" :href="r.url" rel="me noopener" target="_blank">
-          <span class="cat">{{ r.assunto }}</span>
+          <span class="cat">{{ assunto(r.assunto) }}</span>
           <b>{{ r.nome }}</b>
-          <span class="h">{{ r.usuario }}</span>
+          <span class="h">{{ lang === 'en' && r.usuarioEn ? r.usuarioEn : r.usuario }}</span>
         </a>
       </div>
     </Section>
@@ -21,10 +23,10 @@ defineProps<{ footline?: string }>()
     <span v-if="footline" class="footline">{{ footline }}</span>
 
     <div class="badges">
-      <a class="badge" href="/feed.xml"><span>rss</span><span>assine o feed xml</span></a>
-      <span class="badge"><span>vue</span><span>feito por IA em vue.js</span></span>
-      <span class="badge"><span>.md</span><span>escrito em markdown</span></span>
-      <span class="badge"><span>www</span><span>melhor em 800×600</span></span>
+      <a class="badge" href="/feed.xml"><span>rss</span><span>{{ t('badge.rss') }}</span></a>
+      <span class="badge"><span>vue</span><span>{{ t('badge.vue') }}</span></span>
+      <span class="badge"><span>.md</span><span>{{ t('badge.md') }}</span></span>
+      <span class="badge"><span>www</span><span>{{ t('badge.www') }}</span></span>
       <VisitCounter />
     </div>
   </footer>

@@ -1,53 +1,55 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { withBase } from 'vitepress'
-import { data as posts } from '../data/posts.data'
-import { parse, search, segments, snippet, termsFor } from '../lib/search'
+import { parse, search, segments, snippet, termsFor, type Field } from '../lib/search'
 import { useSearch } from '../composables/useSearch'
+import { useI18n } from '../composables/useI18n'
+import type { I18nKey } from '../lib/i18n'
 
 const { query } = useSearch()
+const { t, entries, href, posts } = useI18n()
 
 const crit = computed(() => parse(query.value))
-const results = computed(() => search(posts, query.value))
-const t = computed(() => ({
+const results = computed(() => search(posts.value, query.value))
+const terms = computed(() => ({
   titulo: termsFor(crit.value, 'título'),
   tema: termsFor(crit.value, 'tema'),
   tags: termsFor(crit.value, 'tags'),
   texto: termsFor(crit.value, 'texto')
 }))
-const plural = (n: number) => `${n} ${n === 1 ? 'registro' : 'registros'}`
+const fieldName = (f: Field) => t(`f.${f}` as I18nKey)
 </script>
 
 <template>
   <section class="results">
     <h2 class="bar">
-      <span class="rlbl">▸ resultados para “{{ query.trim() }}”</span>
-      <span class="side">{{ plural(results.length) }}</span>
+      <span class="rlbl">▸ {{ t('res.for') }} “{{ query.trim() }}”</span>
+      <span class="side">{{ entries(results.length) }}</span>
     </h2>
     <ul class="res">
       <li v-for="r in results" :key="r.post.url">
         <a :href="withBase(r.post.url)" @click="query = ''">
           <span class="rm">
-            nº {{ r.post.n }} ·
+            {{ t('log.n') }} {{ r.post.n }} ·
             <mark v-if="r.where.includes('data')">{{ r.post.dataLog }}</mark><template v-else>{{ r.post.dataLog }}</template>
             ·
-            <template v-for="(s, i) in segments(r.post.tema, t.tema)" :key="i"><mark v-if="s.hit">{{ s.text }}</mark><template v-else>{{ s.text }}</template></template>
+            <template v-for="(s, i) in segments(r.post.tema, terms.tema)" :key="i"><mark v-if="s.hit">{{ s.text }}</mark><template v-else>{{ s.text }}</template></template>
           </span>
           <span class="rt">
-            <template v-for="(s, i) in segments(r.post.titulo, t.titulo)" :key="i"><mark v-if="s.hit">{{ s.text }}</mark><template v-else>{{ s.text }}</template></template>
+            <template v-for="(s, i) in segments(r.post.titulo, terms.titulo)" :key="i"><mark v-if="s.hit">{{ s.text }}</mark><template v-else>{{ s.text }}</template></template>
           </span>
           <span class="rs">
-            <template v-for="(s, i) in segments(snippet(r.post.texto, t.texto) || r.post.resumo, t.texto)" :key="i"><mark v-if="s.hit">{{ s.text }}</mark><template v-else>{{ s.text }}</template></template>
+            <template v-for="(s, i) in segments(snippet(r.post.texto, terms.texto) || r.post.resumo, terms.texto)" :key="i"><mark v-if="s.hit">{{ s.text }}</mark><template v-else>{{ s.text }}</template></template>
           </span>
           <span class="rw">
-            encontrado em: {{ r.where.join(', ') }} · tags:
-            <template v-for="(s, i) in segments(r.post.tags.map((x) => '#' + x).join(' '), t.tags)" :key="i"><mark v-if="s.hit">{{ s.text }}</mark><template v-else>{{ s.text }}</template></template>
+            {{ t('res.found') }}: {{ r.where.map(fieldName).join(', ') }} · tags:
+            <template v-for="(s, i) in segments(r.post.tags.map((x) => '#' + x).join(' '), terms.tags)" :key="i"><mark v-if="s.hit">{{ s.text }}</mark><template v-else>{{ s.text }}</template></template>
           </span>
         </a>
       </li>
     </ul>
     <p v-if="!results.length" class="empty">
-      nada encontrado para “{{ query.trim() }}”. tente outra palavra ou veja os <a :href="withBase('/arquivos')">arquivos</a>.
+      {{ t('res.none', { q: query.trim() }) }} <a :href="withBase(href('/arquivos'))">{{ t('res.archive') }}</a>.
     </p>
   </section>
 </template>

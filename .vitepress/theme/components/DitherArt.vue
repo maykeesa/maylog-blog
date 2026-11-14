@@ -2,6 +2,7 @@
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { RANDOM_SCENES, paintBits, sceneBits } from '../lib/dither'
 import { useTheme } from '../composables/useTheme'
+import { useI18n } from '../composables/useI18n'
 
 /*
   Imagem pontilhada gerada na hora.
@@ -21,6 +22,7 @@ const cv = ref<HTMLCanvasElement>()
 const scene = ref(props.scene ?? '')
 const seed = ref(props.seed ?? 1)
 const { onThemeChange } = useTheme()
+const { t, cena } = useI18n()
 
 function draw() {
   if (!cv.value || !scene.value) return
@@ -61,13 +63,13 @@ watch(() => [props.scene, props.seed], () => {
       :width="width"
       :height="height"
       role="img"
-      :aria-label="label || 'Arte pontilhada'"
-      :title="shuffle ? 'clique para sortear outra' : undefined"
+      :aria-label="label || t('art.label')"
+      :title="shuffle ? t('art.shuffleTitle') : undefined"
       @click="shuffle && pick()"
     ></canvas>
     <div v-if="shuffle" class="artcap">
-      <span>{{ captionPrefix }}cena: {{ scene || '—' }} · {{ RANDOM_SCENES.indexOf(scene) + 1 }}/{{ RANDOM_SCENES.length }}</span>
-      <button type="button" class="linkbtn" @click="pick">sortear outra</button>
+      <span>{{ captionPrefix }}{{ t('art.scene') }}: {{ scene ? cena(scene) : '—' }} · {{ RANDOM_SCENES.indexOf(scene) + 1 }}/{{ RANDOM_SCENES.length }}</span>
+      <button type="button" class="linkbtn" @click="pick">{{ t('art.shuffle') }}</button>
     </div>
   </div>
 </template>

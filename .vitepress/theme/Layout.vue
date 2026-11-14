@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { computed, watch } from 'vue'
 import { Content, useData, useRoute } from 'vitepress'
-import { data as posts } from './data/posts.data'
 import { useSearch } from './composables/useSearch'
+import { useI18n } from './composables/useI18n'
 import SiteHeader from './components/SiteHeader.vue'
 import SiteFooter from './components/SiteFooter.vue'
 import SearchBox from './components/SearchBox.vue'
@@ -17,10 +17,12 @@ import NotFound from './pages/NotFound.vue'
 const { frontmatter, page } = useData()
 const route = useRoute()
 const { query } = useSearch()
+const { t, lang, entries, posts } = useI18n()
 
 const layout = computed(() => {
   if (frontmatter.value.layout) return frontmatter.value.layout
-  return page.value.relativePath.startsWith('posts/') ? 'post' : 'page'
+  const rel = page.value.relativePath
+  return rel.startsWith('posts/') || rel.startsWith('en/posts/') ? 'post' : 'page'
 })
 const searching = computed(() => query.value.trim().length > 0)
 
@@ -31,12 +33,12 @@ watch(
 )
 
 /* "desde AAAA" sai do primeiro post; "última atualização" sai do mais recente */
-const since = computed(() => posts[posts.length - 1]?.ano)
+const since = computed(() => posts.value[posts.value.length - 1]?.ano)
 const footline = computed(() => {
-  const last = posts[0]
-  const n = posts.length
-  const upd = last ? `última atualização: ${last.data.split('-').reverse().join('.')} · ` : ''
-  return `${upd}${n} ${n === 1 ? 'registro' : 'registros'} · sem cookies, sem rastreio`
+  const last = posts.value[0]
+  const date = last ? (lang.value === 'en' ? last.dataLog : last.data.split('-').reverse().join('.')) : ''
+  const upd = last ? `${t('foot.updated')}: ${date} · ` : ''
+  return `${upd}${entries(posts.value.length)} · ${t('foot.privacy')}`
 })
 </script>
 

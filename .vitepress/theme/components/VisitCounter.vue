@@ -1,10 +1,13 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, ref } from 'vue'
 import { site } from '../site'
+import { useI18n } from '../composables/useI18n'
 
 /* Contador retrô em formato de botão 88×31: seis dígitos que rolam como um odômetro. */
 const count = ref<number | null>(null)
 const rolled = ref(false)
+const { t, lang } = useI18n()
+const locale = computed(() => (lang.value === 'en' ? 'en-US' : 'pt-BR'))
 
 async function load(): Promise<number> {
   if (site.contador.url) {
@@ -33,19 +36,19 @@ onMounted(async () => {
 })
 
 const digits = computed(() => String(count.value ?? 0).padStart(6, '0').slice(-6).split('').map(Number))
-const tip = computed(() => (count.value ? `você é o visitante nº ${count.value.toLocaleString('pt-BR')} ✦` : ''))
+const tip = computed(() => (count.value ? t('count.you', { n: count.value.toLocaleString(locale.value) }) : ''))
 </script>
 
 <template>
   <span class="badge-cnt" :title="tip">
-    <span class="odo" role="img" :aria-label="count ? `${count.toLocaleString('pt-BR')} visitas` : 'visitas'">
+    <span class="odo" role="img" :aria-label="count ? `${count.toLocaleString(locale)} ${t('count.visits')}` : t('count.visits')">
       <span v-for="(d, i) in digits" :key="i" class="dg" aria-hidden="true">
         <span class="col" :style="{ transform: rolled ? `translateY(${-d * 1.6}em)` : 'none', transitionDelay: `${i * 90}ms` }">
           <span v-for="k in 10" :key="k">{{ k - 1 }}</span>
         </span>
       </span>
     </span>
-    <small>visitas</small>
+    <small>{{ t('count.visits') }}</small>
   </span>
 </template>
 

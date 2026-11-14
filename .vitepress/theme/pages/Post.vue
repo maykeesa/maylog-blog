@@ -7,30 +7,33 @@ import BannerArt from '../components/BannerArt.vue'
 import ShareBar from '../components/ShareBar.vue'
 import { computed } from 'vue'
 import { bannerOf } from '../lib/banners'
+import { useI18n } from '../composables/useI18n'
 
 const { post, newer, older } = useCurrentPost()
+const { t, href } = useI18n()
 const banner = computed(() => (post.value ? bannerOf(post.value) : undefined))
 </script>
 
 <template>
   <article v-if="post" class="post">
     <div class="meta">
-      <span>nº {{ post.n }}</span>
+      <span>{{ t('post.n') }} {{ post.n }}</span>
       <span>{{ post.dataLog }}</span>
-      <span>tema: {{ post.tema }}</span>
-      <span>{{ post.minutos }} min de leitura</span>
+      <span>{{ t('post.topic') }} {{ post.tema }}</span>
+      <span>{{ post.minutos }} {{ t('post.read') }}</span>
     </div>
     <h1>{{ post.titulo }}</h1>
     <p v-if="post.subtitulo" class="dek">{{ post.subtitulo }}</p>
+    <p v-if="post.ptOnly" class="langnote" lang="en">{{ t('post.ptOnly') }}</p>
 
     <figure v-if="banner?.dither" class="post-banner">
-      <BannerArt :src="banner.dither" :original="banner.original" :alt="`Banner de ${post.titulo}`" />
-      <figcaption>banner pontilhado · clique para ver a foto original</figcaption>
+      <BannerArt :src="banner.dither" :original="banner.original" :alt="post.titulo" />
+      <figcaption>{{ t('post.banner') }}</figcaption>
     </figure>
 
     <PostToc :title="post.titulo" />
 
-    <div class="post-body">
+    <div class="post-body" :lang="post.ptOnly ? 'pt-BR' : undefined">
       <Content />
     </div>
 
@@ -40,7 +43,7 @@ const banner = computed(() => (post.value ? bannerOf(post.value) : undefined))
 
     <nav class="pager" aria-label="Entradas">
       <a v-if="older" :href="withBase(older.url)">← {{ older.n }} {{ older.titulo }}</a>
-      <a :href="withBase('/')">voltar ao log ↑</a>
+      <a :href="withBase(href('/'))">{{ t('post.back') }}</a>
       <a v-if="newer" :href="withBase(newer.url)">{{ newer.n }} {{ newer.titulo }} →</a>
     </nav>
   </article>
@@ -69,6 +72,13 @@ const banner = computed(() => (post.value ? bannerOf(post.value) : undefined))
   color: var(--muted);
   font-size: 20px;
   margin: 0 0 28px;
+}
+.langnote {
+  font-family: var(--mono);
+  font-size: 12px;
+  background: var(--sel);
+  padding: 6px 10px;
+  margin: 0 0 24px;
 }
 .post-banner {
   margin: 0 0 32px;

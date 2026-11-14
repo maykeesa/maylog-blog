@@ -1,18 +1,20 @@
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useSearch } from '../composables/useSearch'
+import { useI18n } from '../composables/useI18n'
 
 const { query } = useSearch()
+const { t } = useI18n()
 const input = ref<HTMLInputElement>()
 
-const examples = [
-  { ex: 'tag:ia', desc: 'só nas tags' },
-  { ex: 'titulo:vue', desc: 'só no título' },
-  { ex: 'tema:ensaio', desc: 'só no tema' },
-  { ex: 'texto:rss', desc: 'só no texto' },
-  { ex: 'data:2026.10', desc: 'por ano ou mês' },
-  { ex: '"sem público"', desc: 'frase exata' }
-]
+const examples = computed(() => [
+  { ex: 'tag:ia', desc: t('search.d.tag') },
+  { ex: t('search.ex.titulo'), desc: t('search.d.titulo') },
+  { ex: t('search.ex.tema'), desc: t('search.d.tema') },
+  { ex: t('search.ex.texto'), desc: t('search.d.texto') },
+  { ex: t('search.ex.data'), desc: t('search.d.data') },
+  { ex: t('search.ex.frase'), desc: t('search.d.frase') }
+])
 
 function use(ex: string) {
   query.value = ex
@@ -37,31 +39,31 @@ defineExpose({ focus: () => input.value?.focus() })
 
 <template>
   <form class="search" role="search" @submit.prevent>
-    <label for="q">buscar</label>
+    <label for="q">{{ t('search.label') }}</label>
     <input
       id="q"
       ref="input"
       v-model="query"
       type="search"
-      placeholder="IA, vue, nostalgia…"
+      :placeholder="t('search.ph')"
       autocomplete="off"
       spellcheck="false"
       @keydown.esc="onEsc"
     />
     <span class="qmark" aria-hidden="true">?</span>
-    <div class="hint" role="note" aria-label="Filtros da busca">
+    <div class="hint" role="note" :aria-label="t('search.hint')">
       <div class="hint-box">
-        <div class="hint-bar"><span>filtros da busca</span><span>_□×</span></div>
+        <div class="hint-bar"><span>{{ t('search.hint') }}</span><span>_□×</span></div>
         <ul>
           <li v-for="e in examples" :key="e.ex">
             <button type="button" @mousedown.prevent @click="use(e.ex)">{{ e.ex }}</button><span>{{ e.desc }}</span>
           </li>
         </ul>
         <p>
-          combine filtros:
-          <button type="button" @mousedown.prevent @click="use('tag:nostalgia tema:ensaio')">tag:nostalgia tema:ensaio</button>
+          {{ t('search.combine') }}
+          <button type="button" @mousedown.prevent @click="use(t('search.ex.combo'))">{{ t('search.ex.combo') }}</button>
         </p>
-        <p class="hint-keys">aperte <kbd>/</kbd> para buscar · <kbd>esc</kbd> limpa</p>
+        <p class="hint-keys">{{ t('search.keys') }}</p>
       </div>
     </div>
   </form>

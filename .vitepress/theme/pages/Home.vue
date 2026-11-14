@@ -1,48 +1,46 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { withBase } from 'vitepress'
-import { data as posts } from '../data/posts.data'
-import { site } from '../site'
+import { site, par } from '../site'
+import { useI18n } from '../composables/useI18n'
 import Section from '../components/Section.vue'
 import LogList from '../components/LogList.vue'
 import DitherArt from '../components/DitherArt.vue'
 
+const { t, lang, entries, href, posts } = useI18n()
 const RECENTES = 6
-const recentes = computed(() => posts.slice(0, RECENTES))
-const total = posts.length
-const primeiro = computed(() => posts[posts.length - 1]?.n ?? '001')
-const ultimo = computed(() => posts[0]?.n ?? '001')
+const recentes = computed(() => posts.value.slice(0, RECENTES))
+const primeiro = computed(() => posts.value[posts.value.length - 1]?.n ?? '001')
+const ultimo = computed(() => posts.value[0]?.n ?? '001')
 const agoraData = site.agora.atualizado.slice(8, 10) + '.' + site.agora.atualizado.slice(5, 7)
+const agora = computed(() => site.agora.itens.map((i) => par(i, lang.value)))
 </script>
 
 <template>
-  <Section id="leiame" label="leia-me" side="arquivo 000">
+  <Section id="leiame" :label="t('home.readme')" :side="t('home.file')">
     <div class="intro">
-      <DitherArt :width="340" :height="96" shuffle label="Arte pontilhada aleatória" />
-      <p>
-        Isto é um weblog no sentido antigo: um registro. Escrevo sobre tecnologia, livros, filmes e o que mais
-        aparecer, sem algoritmo e sem pressa. Cada entrada tem número, data e tema, como linhas de um arquivo de log.
-      </p>
+      <DitherArt :width="340" :height="96" shuffle />
+      <p>{{ t('home.intro') }}</p>
     </div>
   </Section>
 
-  <Section id="recentes" label="entradas recentes" :side="`${total} ${total === 1 ? 'registro' : 'registros'}`">
+  <Section id="recentes" :label="t('home.recent')" :side="entries(posts.length)">
     <LogList :posts="recentes" head />
     <p class="more">
-      <a :href="withBase('/arquivos')">ver arquivo completo ({{ ultimo }} → {{ primeiro }})</a>
+      <a :href="withBase(href('/arquivos'))">{{ t('home.all') }} ({{ ultimo }} → {{ primeiro }})</a>
     </p>
   </Section>
 
   <div class="cols">
-    <Section id="agora" label="agora" :side="agoraData">
+    <Section id="agora" :label="t('home.now')" :side="agoraData">
       <dl class="kv">
-        <template v-for="item in site.agora.itens" :key="item.rotulo">
+        <template v-for="item in agora" :key="item.rotulo">
           <dt>{{ item.rotulo }}</dt>
           <dd>{{ item.valor }}</dd>
         </template>
       </dl>
     </Section>
-    <Section id="acompanho" label="acompanho" side="canais">
+    <Section id="acompanho" :label="t('home.following')" :side="t('home.channels')">
       <ul class="follow">
         <li v-for="c in site.acompanho" :key="c.url">
           <a :href="c.url" target="_blank" rel="noopener">{{ c.nome }}</a> <span class="via">{{ c.onde }}</span>
