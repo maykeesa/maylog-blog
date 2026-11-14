@@ -6,13 +6,11 @@ O que ficou para depois. Apague o item quando terminar.
 
 - [ ] Trocar ou apagar os posts de exemplo em `posts/` (`001-primeiro-registro`, `002-guia-de-markdown` e `003-tudo-que-o-markdown-faz`).
 
-## domínio próprio
+## domínio
 
-O site está no ar em https://maylog.vercel.app, publicado sozinho a cada `git push`.
+O site está em https://maylog.net (domínio no Squarespace, hospedagem na Vercel), publicado sozinho a cada `git push`.
 
-- [ ] Escolher e registrar o domínio (Registro.br para `.com.br`, ou Cloudflare/Porkbun para `.com`, `.blog`, `.dev`).
-- [ ] Adicionar o domínio na Vercel (Settings → Domains) e criar no registro os apontamentos DNS que ela pedir.
-- [ ] Trocar `url` no `conteudo.yml` pelo domínio novo (usado nos links de compartilhar, nos feeds e no sitemap).
+- [ ] Opcional: fazer `www.maylog.net` levar para `maylog.net` (adicionar na Vercel com redirect e criar o CNAME `www` no Squarespace).
 
 ## melhorias combinadas
 
