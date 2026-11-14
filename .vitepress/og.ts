@@ -100,7 +100,9 @@ async function card(art: { bits: Uint8Array; w: number; h: number }, label: stri
   if (art.w / art.h > 2.2) {
     const s = Math.floor((OG_W - 180) / art.w)
     const w = art.w * s, h = art.h * s
-    const left = Math.round((OG_W - w) / 2), top = Math.round((OG_H - h - 96) / 2)
+    /* etiqueta em cima e a faixa logo abaixo (o X escreve o título no canto de baixo) */
+    const labelTop = Math.round((OG_H - h - 108) / 2)
+    const left = Math.round((OG_W - w) / 2), top = labelTop + 108
     const strip = await sharp(rgb, { raw: { width: art.w, height: art.h, channels: 3 } })
       .resize(w, h, { kernel: 'nearest' })
       .png()
@@ -108,8 +110,8 @@ async function card(art: { bits: Uint8Array; w: number; h: number }, label: stri
     const frame = Buffer.from(
       `<svg xmlns="http://www.w3.org/2000/svg" width="${OG_W}" height="${OG_H}">
         <rect x="${left - 6}" y="${top - 6}" width="${w + 12}" height="${h + 12}" fill="none" stroke="${INK}" stroke-width="3"/>
-        <rect x="${left - 6}" y="${top + h + 36}" width="${36 + label.length * 21}" height="72" fill="${PAPER}" stroke="${INK}" stroke-width="3"/>
-        <text x="${left + 12}" y="${top + h + 85}" font-family="IBM Plex Mono, DejaVu Sans Mono, Consolas, monospace" font-size="34" font-weight="700" fill="${INK}">${label}</text>
+        <rect x="${left - 6}" y="${labelTop}" width="${36 + label.length * 21}" height="72" fill="${PAPER}" stroke="${INK}" stroke-width="3"/>
+        <text x="${left + 12}" y="${labelTop + 49}" font-family="IBM Plex Mono, DejaVu Sans Mono, Consolas, monospace" font-size="34" font-weight="700" fill="${INK}">${label}</text>
       </svg>`
     )
     await sharp({ create: { width: OG_W, height: OG_H, channels: 3, background: PAPER } })
@@ -118,7 +120,7 @@ async function card(art: { bits: Uint8Array; w: number; h: number }, label: stri
       .toFile(out)
     return
   }
-  /* amplia sem suavizar (pixels nítidos) e recorta para 1200×630 */
+  /* amplia sem suavizar (pixels nítidos) e recorta para 1200×630; a etiqueta fica no canto de cima, longe do título que o X escreve embaixo */
   const scale = Math.ceil(Math.max(OG_W / art.w, OG_H / art.h))
   const big = await sharp(rgb, { raw: { width: art.w, height: art.h, channels: 3 } })
     .resize(art.w * scale, art.h * scale, { kernel: 'nearest' })
@@ -126,8 +128,8 @@ async function card(art: { bits: Uint8Array; w: number; h: number }, label: stri
     .toBuffer()
   const badge = Buffer.from(
     `<svg xmlns="http://www.w3.org/2000/svg" width="${OG_W}" height="${OG_H}">
-      <rect x="40" y="${OG_H - 112}" width="${36 + label.length * 21}" height="72" fill="${PAPER}" stroke="${INK}" stroke-width="3"/>
-      <text x="58" y="${OG_H - 63}" font-family="IBM Plex Mono, DejaVu Sans Mono, Consolas, monospace" font-size="34" font-weight="700" fill="${INK}">${label}</text>
+      <rect x="40" y="40" width="${36 + label.length * 21}" height="72" fill="${PAPER}" stroke="${INK}" stroke-width="3"/>
+      <text x="58" y="89" font-family="IBM Plex Mono, DejaVu Sans Mono, Consolas, monospace" font-size="34" font-weight="700" fill="${INK}">${label}</text>
     </svg>`
   )
   await sharp(big)
@@ -172,6 +174,8 @@ export function ogHead({ pageData }: TransformContext): HeadConfig[] {
   else if (rel.startsWith('en/posts/')) folder = String(pageData.params?.slug ?? '')
 
   const frase = isEn ? site.fraseEn : site.frase
+  /* "título · maylog", sem repetir o nome quando o título já tem a palavra maylog */
+  const withSite = (t: string) => (t.toLowerCase().includes(site.nome.toLowerCase()) ? t : `${t} · ${site.nome}`)
   let title = site.nome
   let description = frase
   let image = `${base}/og/site.png`
@@ -180,13 +184,13 @@ export function ogHead({ pageData }: TransformContext): HeadConfig[] {
 
   if (folder) {
     const m = meta(folder, lang)
-    title = `${m.titulo} · ${site.nome}`
+    title = withSite(m.titulo)
     description = m.descricao
     image = `${base}/og/${folder}.png`
     type = 'article'
     pathName = isEn ? `/en/posts/${folder}` : `/posts/${folder}/`
   } else if (pageData.frontmatter.titulo) {
-    title = `${pageData.frontmatter.titulo} · ${site.nome}`
+    title = withSite(String(pageData.frontmatter.titulo))
   }
 
   const url = base + pathName
