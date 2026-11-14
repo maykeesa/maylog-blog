@@ -301,6 +301,23 @@ const banner = computed(() => (post.value ? bannerOf(post.value) : undefined))
   background: var(--bg);
 }
 
+/* destaque do ponto de chegada (sumário e notas): fundo amarelo que some aos poucos */
+.post-body .arrived {
+  border-radius: 3px;
+  animation: arrived 1.8s ease-out;
+}
+@keyframes arrived {
+  0%,
+  35% {
+    background-color: var(--sel);
+    box-shadow: 0 0 0 6px var(--sel);
+  }
+  100% {
+    background-color: transparent;
+    box-shadow: 0 0 0 6px transparent;
+  }
+}
+
 /* notas de rodapé */
 .post-body .footnote-ref a {
   font-family: var(--mono);

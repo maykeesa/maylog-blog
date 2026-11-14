@@ -3,7 +3,7 @@ import { computed, nextTick, onBeforeUnmount, onMounted, shallowRef, useTemplate
 import { useRoute } from 'vitepress'
 import Section from './Section.vue'
 import { useI18n } from '../composables/useI18n'
-import { smoothScrollTo } from '../composables/useSmoothScroll'
+import { highlightTarget, smoothScrollTo } from '../composables/useSmoothScroll'
 import { currentZoom } from '../composables/useZoom'
 
 /*
@@ -43,7 +43,7 @@ function goTo(id: string) {
   popOpen.value = false
   const el = document.getElementById(id)
   if (!el) return
-  smoothScrollTo(el, BAR_OFFSET)
+  smoothScrollTo(el, BAR_OFFSET, () => highlightTarget(el))
   history.replaceState(history.state, '', `#${id}`)
 }
 

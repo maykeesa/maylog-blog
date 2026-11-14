@@ -60,7 +60,7 @@ function onAnchorClick(e: MouseEvent) {
   const el = id && document.getElementById(id)
   if (!el) return
   e.preventDefault()
-  smoothScrollTo(el, -84)
+  smoothScrollTo(el, -84, () => highlightTarget(el))
   history.replaceState(history.state, '', `#${id}`)
 }
 
@@ -79,14 +79,26 @@ const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3)
   offset: distância extra (negativa = para cima), útil para não esconder o alvo sob a barra fixa.
   Para quem pediu "reduzir movimento", vai direto, sem animação.
 */
-export function smoothScrollTo(target: number | HTMLElement, offset = 0) {
+export function smoothScrollTo(target: number | HTMLElement, offset = 0, onArrive?: () => void) {
   /* a barra fixa cresce junto com o tamanho da página: a distância também */
   offset *= currentZoom()
   if (lenis) {
-    lenis.scrollTo(target, { offset, duration: 1.1, easing: easeOutCubic })
+    lenis.scrollTo(target, { offset, duration: 1.1, easing: easeOutCubic, onComplete: onArrive })
     return
   }
   const reduce = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
   const top = typeof target === 'number' ? target : target.getBoundingClientRect().top + window.scrollY
   window.scrollTo({ top: top + offset, behavior: reduce ? 'auto' : 'smooth' })
+  if (onArrive) setTimeout(onArrive, reduce ? 0 : 700)
+}
+
+/*
+  Destaca por um instante o ponto de chegada (subtítulo do sumário, nota de rodapé),
+  com um fundo amarelo que some aos poucos, para o olho achar onde parou.
+*/
+export function highlightTarget(el: HTMLElement) {
+  el.classList.remove('arrived')
+  void el.offsetWidth /* reinicia a animação se clicar de novo no mesmo ponto */
+  el.classList.add('arrived')
+  el.addEventListener('animationend', () => el.classList.remove('arrived'), { once: true })
 }
