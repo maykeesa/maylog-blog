@@ -2,9 +2,8 @@
 import { computed } from 'vue'
 import { withBase } from 'vitepress'
 import { data as posts, type Post } from '../data/posts.data'
-import { sceneFor } from '../lib/sceneFor'
 import Section from './Section.vue'
-import DitherArt from './DitherArt.vue'
+import PostArt from './PostArt.vue'
 
 /* Até 3 posts parecidos: cada tag em comum vale 3 pontos, o mesmo tema vale 2; empate vai para a data mais próxima. */
 const props = defineProps<{ post: Post }>()
@@ -28,7 +27,7 @@ const related = computed(() => {
   <Section v-if="related.length" id="relacionados" label="registros relacionados" side="por tema e tags" class="related">
     <div class="relgrid">
       <a v-for="x in related" :key="x.p.url" class="relcard" :href="withBase(x.p.url)">
-        <DitherArt :width="170" :height="64" :scene="sceneFor(x.p).scene" :seed="sceneFor(x.p).seed" />
+        <PostArt :post="x.p" :width="170" :height="64" />
         <span class="rm">nº {{ x.p.n }} · {{ x.p.dataLog }}</span>
         <span class="rt">{{ x.p.titulo }}</span>
         <span class="rw">em comum: <b>{{ [...x.shared.map((t) => '#' + t), ...(x.same ? [x.p.tema] : [])].join(' · ') }}</b></span>

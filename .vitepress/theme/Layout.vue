@@ -7,6 +7,7 @@ import SiteHeader from './components/SiteHeader.vue'
 import SiteFooter from './components/SiteFooter.vue'
 import SearchBox from './components/SearchBox.vue'
 import SearchResults from './components/SearchResults.vue'
+import HoverPeek from './components/HoverPeek.vue'
 import Home from './pages/Home.vue'
 import Post from './pages/Post.vue'
 import Archive from './pages/Archive.vue'
@@ -55,4 +56,5 @@ const footline = computed(() => {
     </main>
     <SiteFooter :footline="footline" />
   </div>
+  <HoverPeek />
 </template>
