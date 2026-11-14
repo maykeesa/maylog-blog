@@ -89,25 +89,25 @@ const banner = computed(() => (post.value ? bannerOf(post.value) : undefined))
   color: var(--muted);
   margin-top: 6px;
 }
-.post-body > h2 {
+.post-body h2 {
   font-family: var(--mono);
   font-size: 15px;
   font-weight: 700;
   margin: 40px 0 8px;
   scroll-margin-top: 84px;
 }
-.post-body > h2::before {
+.post-body h2::before {
   content: '## ';
   color: var(--muted);
   font-weight: 400;
 }
-.post-body > h3 {
+.post-body h3 {
   font-family: var(--mono);
   font-size: 14px;
   font-weight: 500;
   margin: 28px 0 6px;
 }
-.post-body > h3::before {
+.post-body h3::before {
   content: '### ';
   color: var(--muted);
 }
@@ -117,7 +117,8 @@ const banner = computed(() => (post.value ? bannerOf(post.value) : undefined))
 .post-body p {
   margin: 0 0 1.1em;
 }
-.post-body > p:first-of-type::first-letter {
+/* o VitePress envolve o texto em duas div; a capitular vai no primeiro parágrafo de verdade */
+.post-body > div > div > p:first-child::first-letter {
   font-family: var(--mono);
   font-weight: 700;
   float: left;
@@ -192,14 +193,14 @@ const banner = computed(() => (post.value ? bannerOf(post.value) : undefined))
   font-weight: 500;
 }
 
-.post-body > h4 {
+.post-body h4 {
   font-family: var(--mono);
   font-size: 13px;
   font-weight: 500;
   color: var(--muted);
   margin: 24px 0 4px;
 }
-.post-body > h4::before {
+.post-body h4::before {
   content: '#### ';
 }
 .post-body kbd {

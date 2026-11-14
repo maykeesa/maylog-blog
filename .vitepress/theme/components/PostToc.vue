@@ -28,7 +28,10 @@ const { t } = useI18n()
 let headEls: HTMLElement[] = []
 
 function collect() {
-  headEls = Array.from(document.querySelectorAll<HTMLElement>('.post-body > h2'))
+  /* subtítulos ## do texto (o VitePress envolve o conteúdo em divs; os de dentro de caixas e citações ficam de fora) */
+  headEls = Array.from(document.querySelectorAll<HTMLElement>('.post-body h2')).filter(
+    (h) => !h.closest('.custom-block, blockquote')
+  )
   heads.value = headEls.map((h) => ({
     id: h.id,
     /* o VitePress põe uma âncora invisível no fim do subtítulo; fica só o texto */
@@ -62,14 +65,27 @@ function onKey(e: KeyboardEvent) {
   if (e.key === 'Escape') popOpen.value = false
 }
 
+/* o texto do post pode chegar depois (navegação entre posts sem recarregar): refaz o sumário quando ele muda */
+let observer: MutationObserver | undefined
+let pending = 0
 onMounted(() => {
   collect()
+  const body = document.querySelector('.post-body')
+  if (body) {
+    observer = new MutationObserver(() => {
+      cancelAnimationFrame(pending)
+      pending = requestAnimationFrame(collect)
+    })
+    observer.observe(body, { childList: true, subtree: true })
+  }
   window.addEventListener('scroll', update, { passive: true })
   window.addEventListener('resize', update)
   document.addEventListener('click', onDoc)
   document.addEventListener('keydown', onKey)
 })
 onBeforeUnmount(() => {
+  observer?.disconnect()
+  cancelAnimationFrame(pending)
   window.removeEventListener('scroll', update)
   window.removeEventListener('resize', update)
   document.removeEventListener('click', onDoc)
