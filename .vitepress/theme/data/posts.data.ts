@@ -1,6 +1,7 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import matter from 'gray-matter'
+import { plain } from './plainText'
 
 /*
   Lê todos os posts durante o build:
@@ -13,7 +14,6 @@ export interface PostText {
   titulo: string
   subtitulo: string
   resumo: string
-  texto: string // texto puro, usado pela busca
   minutos: number
 }
 
@@ -41,17 +41,6 @@ function isoDate(v: unknown): string {
   return String(v ?? '').slice(0, 10)
 }
 
-/* tira a marcação do markdown para virar texto puro (busca, resumo, tempo de leitura) */
-function plain(src: string): string {
-  return src
-    .replace(/```[\s\S]*?```/g, ' ')
-    .replace(/!\[[^\]]*\]\([^)]*\)/g, ' ')
-    .replace(/\[([^\]]*)\]\([^)]*\)/g, '$1')
-    .replace(/\[\^[^\]]*\]:?/g, ' ')
-    .replace(/[#>*_`~|-]+/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim()
-}
 
 function firstParagraph(body: string): string {
   const para = body
@@ -70,7 +59,7 @@ function readText(file: string, fallbackTitle: string): { fm: Record<string, unk
       titulo: String(fm.titulo ?? fallbackTitle),
       subtitulo: String(fm.subtitulo ?? ''),
       resumo: String(fm.resumo ?? firstParagraph(content)),
-      texto,
+
       minutos: Math.max(1, Math.round(texto.split(' ').length / 200))
     }
   }

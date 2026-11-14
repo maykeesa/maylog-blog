@@ -1,9 +1,12 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, useTemplateRef } from 'vue'
 import { useSearch } from '../composables/useSearch'
+import { useSearchText } from '../composables/useSearchText'
 import { useI18n } from '../composables/useI18n'
 
 const { query, clear } = useSearch()
+/* começa a baixar o texto dos posts assim que o campo recebe o foco, antes de a pessoa terminar de digitar */
+const { load: preloadText } = useSearchText()
 const { t } = useI18n()
 const input = useTemplateRef<HTMLInputElement>('searchInput')
 
@@ -54,6 +57,7 @@ defineExpose({ focus: () => input.value?.focus() })
       autocomplete="off"
       spellcheck="false"
       @keydown.esc="onEsc"
+      @focus="preloadText"
     />
     <button
       v-if="query"

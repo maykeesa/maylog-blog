@@ -58,16 +58,17 @@ export function termsFor(crit: Criterion[], field: Field): string[] {
   return crit.filter((c) => c.f === null || c.f === field).map((c) => c.t)
 }
 
-function fields(p: Post): Record<Exclude<Field, 'data'>, string> {
-  return { título: p.titulo, tema: p.tema, tags: p.tags.join(' '), texto: `${p.subtitulo} ${p.texto}` }
+/* textOf: texto completo do post (baixado à parte); enquanto não chega, procura só no subtítulo */
+function fields(p: Post, textOf: (p: Post) => string): Record<Exclude<Field, 'data'>, string> {
+  return { título: p.titulo, tema: p.tema, tags: p.tags.join(' '), texto: `${p.subtitulo} ${textOf(p)}` }
 }
 
-export function search(posts: Post[], q: string): Result[] {
+export function search(posts: Post[], q: string, textOf: (p: Post) => string = () => ''): Result[] {
   const crit = parse(q)
   if (!crit.length) return []
   const out: Result[] = []
   for (const p of posts) {
-    const fs = fields(p)
+    const fs = fields(p, textOf)
     const where: Field[] = []
     let score = 0
     const all = crit.every((c) => {

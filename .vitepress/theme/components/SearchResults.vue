@@ -1,17 +1,31 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 import { withBase } from 'vitepress'
+import type { Post } from '../data/posts.data'
 import { parse, search, segments, snippet, termsFor, type Field } from '../lib/search'
 import { useSearch } from '../composables/useSearch'
+import { useSearchText } from '../composables/useSearchText'
 import { useI18n } from '../composables/useI18n'
 import type { I18nKey } from '../lib/i18n'
 import HighlightText from './HighlightText.vue'
 
 const { query, clear } = useSearch()
-const { t, entries, href, posts } = useI18n()
+const { texts, load } = useSearchText()
+const { t, entries, href, posts, lang } = useI18n()
 
 const q = computed(() => query.value.trim())
 const fieldName = (f: Field) => t(`f.${f}` as I18nKey)
+/* enquanto o texto completo não chega, avisa que a busca no texto ainda está carregando */
+const loadingText = computed(() => texts.value === null)
+
+/* texto completo do post no idioma mostrado (em inglês, a tradução quando existe) */
+function textOf(p: Post): string {
+  const entry = texts.value?.[p.n]
+  if (!entry) return ''
+  return lang.value === 'en' && !p.ptOnly && entry.en ? entry.en : entry.pt
+}
+
+onMounted(load)
 
 /* cada resultado já vem com os trechos marcados, prontos para mostrar */
 const rows = computed(() => {
@@ -22,12 +36,12 @@ const rows = computed(() => {
     tags: termsFor(crit, 'tags'),
     texto: termsFor(crit, 'texto')
   }
-  return search(posts.value, query.value).map(({ post, where }) => ({
+  return search(posts.value, query.value, textOf).map(({ post, where }) => ({
     post,
     dateHit: where.includes('data'),
     tema: segments(post.tema, terms.tema),
     titulo: segments(post.titulo, terms.titulo),
-    trecho: segments(snippet(post.texto, terms.texto) || post.resumo, terms.texto),
+    trecho: segments(snippet(textOf(post), terms.texto) || post.resumo, terms.texto),
     tags: segments(post.tags.map((x) => `#${x}`).join(' '), terms.tags),
     onde: where.map(fieldName).join(', ')
   }))
@@ -40,6 +54,7 @@ const rows = computed(() => {
       <span class="rlbl">▸ {{ t('res.for') }} “{{ q }}”</span>
       <span class="side">{{ entries(rows.length) }}</span>
     </h2>
+    <p v-if="loadingText" class="loading">{{ t('res.loading') }}</p>
     <ul class="res">
       <li v-for="r in rows" :key="r.post.url">
         <a :href="withBase(r.post.url)" @click="clear">
@@ -114,6 +129,12 @@ mark {
   background: var(--sel);
   color: inherit;
   padding: 0 1px;
+}
+.loading {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--muted);
+  margin: 10px 0 0;
 }
 .empty {
   font-family: var(--mono);
