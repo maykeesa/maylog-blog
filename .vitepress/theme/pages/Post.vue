@@ -4,6 +4,7 @@ import { useCurrentPost } from '../composables/usePosts'
 import PostToc from '../components/PostToc.vue'
 import RelatedPosts from '../components/RelatedPosts.vue'
 import BannerArt from '../components/BannerArt.vue'
+import ShareBar from '../components/ShareBar.vue'
 import { computed } from 'vue'
 import { bannerOf } from '../lib/banners'
 
@@ -33,7 +34,7 @@ const banner = computed(() => (post.value ? bannerOf(post.value) : undefined))
       <Content />
     </div>
 
-    <slot name="after-body" />
+    <ShareBar :post="post" />
 
     <RelatedPosts :post="post" />
 
