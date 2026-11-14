@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { Content } from 'vitepress'
 import { site, par } from '../site'
 import { useI18n } from '../composables/useI18n'
@@ -13,6 +13,18 @@ const colofao = computed(() => site.colofao.map((f) => par(f, lang.value)))
 const copied = ref('')
 const copyLabel = computed(() => copied.value || t('about.copy'))
 const mailEl = ref<HTMLElement>()
+
+/*
+  O e-mail não vai escrito no HTML gerado: lá aparece "fulano [arroba] gmail [ponto] com".
+  O endereço de verdade só é montado no navegador, depois que a página carrega,
+  o que afasta os robôs simples que coletam e-mails lendo o HTML.
+*/
+const revealed = ref(false)
+onMounted(() => (revealed.value = true))
+const masked = computed(() => {
+  const [at, dot] = lang.value === 'en' ? [' [at] ', ' [dot] '] : [' [arroba] ', ' [ponto] ']
+  return site.contato.email.replace('@', at).replace(/\./g, dot)
+})
 
 async function copyMail() {
   const done = (msg: string) => {
@@ -60,7 +72,8 @@ function goRedes() {
         </template>
         <dt>{{ t('about.contact') }}</dt>
         <dd class="contact">
-          <a ref="mailEl" class="mail" :href="`mailto:${site.contato.email}`">{{ site.contato.email }}</a>
+          <a v-if="revealed" ref="mailEl" class="mail" :href="`mailto:${site.contato.email}`">{{ site.contato.email }}</a>
+          <span v-else class="mail">{{ masked }}</span>
           <span class="contact-actions">
             <button type="button" class="linkbtn" @click="copyMail">{{ copyLabel }}</button>
             <span class="sep">·</span>
