@@ -7,6 +7,7 @@ import footnote from 'markdown-it-footnote'
 import { ditherBanners } from './banners'
 import { feedDevServer, writeFeed } from './feed'
 import { ogHead, pageInfo, writeOgImages } from './og'
+import { writeStatic404 } from './static404'
 import { codeTitle } from './codeTitle'
 import { containerLabels } from './containerLabels'
 import { imageDimensions } from './imageSize'
@@ -99,6 +100,7 @@ export default defineConfig({
   async buildEnd(config) {
     await writeFeed(config)
     await writeOgImages(config)
+    writeStatic404(config)
     fs.writeFileSync(
       path.join(config.outDir, 'robots.txt'),
       `User-agent: *\nAllow: /\n\nSitemap: ${site.url.replace(/\/$/, '')}/sitemap.xml\n`
