@@ -19,7 +19,10 @@ Cada post é uma pasta dentro de `posts/`, com o número do registro no começo 
 posts/
   012-sobre-escrever-sem-publico/
     index.md       ← o texto
-    banner.jpg     ← a foto do banner (opcional; pode ficar em imagens/)
+    banner/
+      banner.jpg   ← a foto do banner (opcional)
+    imagens/
+      print.png    ← prints e imagens do texto (opcional)
 ```
 
 No topo do `index.md` ficam os dados do post:
@@ -31,7 +34,7 @@ subtitulo: Um blog sem métricas é um caderno com a porta aberta.
 data: 2026-11-13
 tema: ensaio
 tags: [escrita, blogs]
-banner: banner.jpg
+banner: banner/banner.jpg
 ---
 ```
 

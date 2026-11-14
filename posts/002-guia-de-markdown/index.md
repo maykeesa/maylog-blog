@@ -4,6 +4,7 @@ subtitulo: Tudo o que dá para usar num post, num lugar só.
 data: 2026-11-14
 tema: técnica
 tags: [markdown, guia]
+banner: banner/banner.jpg
 ---
 
 Este post de exemplo mostra cada elemento de formatação que o maylog estiliza. Use como referência e apague quando não precisar mais.

@@ -4,6 +4,7 @@ subtitulo: Todo log começa com uma primeira linha.
 data: 2026-11-14
 tema: ensaio
 tags: [blogs, escrita]
+banner: banner/banner.jpg
 ---
 
 Este é um post de exemplo. Troque este texto pelo seu primeiro registro, ou apague a pasta quando escrever o de verdade.

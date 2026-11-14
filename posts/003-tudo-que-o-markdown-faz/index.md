@@ -4,7 +4,7 @@ subtitulo: Um registro de teste com cada elemento de formatação, para ver como
 data: 2026-11-14
 tema: técnica
 tags: [markdown, guia, exemplo]
-banner: imagens/banner.jpg
+banner: banner/banner.jpg
 ---
 
 Este post existe para testar o visual. Ele passa por cada coisa que dá para escrever num arquivo `.md` do maylog: textos, listas, citações, código, tabelas, imagens, notas e blocos especiais. Leia trocando entre **white**, **dark** e **sepia** no topo, e apague a pasta quando não precisar mais.
