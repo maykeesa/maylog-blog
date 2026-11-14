@@ -3,6 +3,7 @@ import { createCssVariablesTheme } from 'shiki'
 import footnote from 'markdown-it-footnote'
 import { ditherBanners } from './banners'
 import { feedDevServer, writeFeed } from './feed'
+import { ogHead, pageInfo, writeOgImages } from './og'
 
 /* Aplica o tema salvo antes da página aparecer, para não piscar no tema errado. */
 const themeBootstrap = `(function () {
@@ -46,12 +47,19 @@ export default defineConfig({
       md.use(footnote)
     }
   },
-  buildEnd: writeFeed,
-  /* o título da aba vem do "titulo" do post */
-  transformPageData(pageData) {
-    const t = pageData.frontmatter.titulo
-    if (t) pageData.title = String(t)
+  async buildEnd(config) {
+    await writeFeed(config)
+    await writeOgImages(config)
   },
+  /* título da aba e descrição vêm do post (titulo e subtitulo), nos dois idiomas */
+  transformPageData(pageData) {
+    const info = pageInfo(pageData.relativePath, pageData.params)
+    const t = info.title ?? pageData.frontmatter.titulo
+    if (t) pageData.title = String(t)
+    if (info.description) pageData.description = info.description
+  },
+  /* prévia do link ao compartilhar (Open Graph) */
+  transformHead: ogHead,
   head: [
     ['link', { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' }],
     ['link', { rel: 'icon', type: 'image/png', sizes: '32x32', href: '/favicon-32.png' }],
