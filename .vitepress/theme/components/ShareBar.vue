@@ -4,6 +4,7 @@ import type { Post } from '../data/posts.data'
 import { data as site } from '../data/site.data'
 import { useTheme } from '../composables/useTheme'
 import { useI18n } from '../composables/useI18n'
+import { useFlash } from '../composables/useFlash'
 import StoryModal from './StoryModal.vue'
 
 const { post } = defineProps<{ post: Post }>()
@@ -14,7 +15,7 @@ const url = computed(() => site.url.replace(/\/$/, '') + post.url)
 const wa = computed(() => 'https://wa.me/?text=' + encodeURIComponent(`${post.titulo} — ${url.value}`))
 const li = computed(() => 'https://www.linkedin.com/sharing/share-offsite/?url=' + encodeURIComponent(url.value))
 
-const copied = shallowRef('')
+const { message: copied, flash } = useFlash()
 const copyLabel = computed(() => copied.value || t('share.copy'))
 const hasNative = shallowRef(false)
 const story = shallowRef<{ quote: string; fromSelection: boolean } | null>(null)
@@ -22,15 +23,11 @@ const story = shallowRef<{ quote: string; fromSelection: boolean } | null>(null)
 onMounted(() => (hasNative.value = typeof navigator.share === 'function'))
 
 async function copy() {
-  const done = (m: string) => {
-    copied.value = m
-    setTimeout(() => (copied.value = ''), 1800)
-  }
   try {
     await navigator.clipboard.writeText(url.value)
-    done(t('share.copied'))
+    flash(t('share.copied'))
   } catch {
-    done(`${t('share.fail')} ${url.value}`)
+    flash(`${t('share.fail')} ${url.value}`)
   }
 }
 async function native() {

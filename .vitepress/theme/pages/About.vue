@@ -5,6 +5,7 @@ import { par } from '../site'
 import { data as site } from '../data/site.data'
 import { decodeMail } from '../lib/mail'
 import { useI18n } from '../composables/useI18n'
+import { useFlash } from '../composables/useFlash'
 import Section from '../components/Section.vue'
 import SceneArt from '../components/SceneArt.vue'
 import { smoothScrollTo } from '../composables/useSmoothScroll'
@@ -13,7 +14,7 @@ const { t, lang, posts } = useI18n()
 const since = computed(() => posts.value[posts.value.length - 1]?.ano ?? '')
 const ficha = computed(() => site.ficha.map((f) => par(f, lang.value)))
 const colofao = computed(() => site.colofao.map((f) => par(f, lang.value)))
-const copied = shallowRef('')
+const { message: copied, flash } = useFlash()
 const copyLabel = computed(() => copied.value || t('about.copy'))
 const mailEl = useTemplateRef<HTMLElement>('mail')
 
@@ -32,13 +33,9 @@ const masked = computed(() => {
 })
 
 async function copyMail() {
-  const done = (msg: string) => {
-    copied.value = msg
-    setTimeout(() => (copied.value = ''), 1800)
-  }
   try {
     await navigator.clipboard.writeText(email)
-    done(t('about.copied'))
+    flash(t('about.copied'))
   } catch {
     if (mailEl.value) {
       const r = document.createRange()
@@ -47,7 +44,7 @@ async function copyMail() {
       s?.removeAllRanges()
       s?.addRange(r)
     }
-    done(t('about.selected'))
+    flash(t('about.selected'))
   }
 }
 
