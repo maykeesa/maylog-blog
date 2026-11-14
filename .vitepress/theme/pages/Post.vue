@@ -3,8 +3,12 @@ import { Content, withBase } from 'vitepress'
 import { useCurrentPost } from '../composables/usePosts'
 import PostToc from '../components/PostToc.vue'
 import RelatedPosts from '../components/RelatedPosts.vue'
+import BannerArt from '../components/BannerArt.vue'
+import { computed } from 'vue'
+import { bannerOf } from '../lib/banners'
 
 const { post, newer, older } = useCurrentPost()
+const banner = computed(() => (post.value ? bannerOf(post.value) : undefined))
 </script>
 
 <template>
@@ -17,6 +21,11 @@ const { post, newer, older } = useCurrentPost()
     </div>
     <h1>{{ post.titulo }}</h1>
     <p v-if="post.subtitulo" class="dek">{{ post.subtitulo }}</p>
+
+    <figure v-if="banner?.dither" class="post-banner">
+      <BannerArt :src="banner.dither" :original="banner.original" :alt="`Banner de ${post.titulo}`" />
+      <figcaption>banner pontilhado · clique para ver a foto original</figcaption>
+    </figure>
 
     <PostToc :title="post.titulo" />
 
@@ -59,6 +68,15 @@ const { post, newer, older } = useCurrentPost()
   color: var(--muted);
   font-size: 20px;
   margin: 0 0 28px;
+}
+.post-banner {
+  margin: 0 0 32px;
+}
+.post-banner figcaption {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 6px;
 }
 .post-body > h2 {
   font-family: var(--mono);

@@ -36,6 +36,8 @@ banner: banner.jpg
 ```
 
 - `titulo`, `data` e `tema` são obrigatórios.
+- `banner` é opcional: a foto é convertida sozinha em pontilhado (`banner.dither.png`, gerado no build e fora do git). No post, clicar no banner mostra a foto original. Se a conversão ficar ruim, use `contraste: alto` ou `contraste: baixo`.
+- Prints e imagens no meio do texto (`![legenda](print.png)`) ficam no original.
 - O número do registro (`012`) vem do nome da pasta.
 - O tempo de leitura e o resumo são calculados sozinhos. Para escolher o resumo à mão, use `resumo:`.
 - Pastas que começam com `_` são ignoradas (bom para rascunhos).

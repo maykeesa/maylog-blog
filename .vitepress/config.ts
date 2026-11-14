@@ -1,6 +1,7 @@
 import { defineConfig } from 'vitepress'
 import { createCssVariablesTheme } from 'shiki'
 import footnote from 'markdown-it-footnote'
+import { ditherBanners } from './banners'
 
 /* Aplica o tema salvo antes da página aparecer, para não piscar no tema errado. */
 const themeBootstrap = `(function () {
@@ -30,6 +31,9 @@ export default defineConfig({
   cleanUrls: true,
   appearance: false,
   srcExclude: ['README.md'],
+  vite: {
+    plugins: [ditherBanners()]
+  },
   markdown: {
     theme: codeTheme,
     lineNumbers: true,
