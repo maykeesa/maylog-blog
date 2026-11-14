@@ -2,10 +2,6 @@
 
 O que ficou para depois. Apague o item quando terminar.
 
-## conteúdo
-
-- [ ] Trocar ou apagar os posts de exemplo em `posts/` (`001-primeiro-registro`, `002-guia-de-markdown` e `003-tudo-que-o-markdown-faz`).
-
 ## domínio
 
 O site está em https://maylog.net (domínio no Squarespace, hospedagem na Vercel), publicado sozinho a cada `git push`.
