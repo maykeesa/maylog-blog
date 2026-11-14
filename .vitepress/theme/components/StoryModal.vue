@@ -3,6 +3,7 @@ import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import type { Post } from '../data/posts.data'
 import { drawStory, type StoryLayout, type StoryTheme } from '../lib/story'
 import { useI18n } from '../composables/useI18n'
+import { pauseSmoothScroll } from '../composables/useSmoothScroll'
 
 const props = defineProps<{ post: Post; url: string; quote: string; fromSelection: boolean; theme: StoryTheme }>()
 const emit = defineEmits<{ close: [] }>()
@@ -46,6 +47,7 @@ function onKey(e: KeyboardEvent) {
 onMounted(async () => {
   document.addEventListener('keydown', onKey)
   document.body.style.overflow = 'hidden'
+  pauseSmoothScroll(true)
   try {
     canSend.value = !!navigator.canShare?.({ files: [new File([''], 'x.png', { type: 'image/png' })] })
   } catch {
@@ -58,6 +60,7 @@ onMounted(async () => {
 onBeforeUnmount(() => {
   document.removeEventListener('keydown', onKey)
   document.body.style.overflow = ''
+  pauseSmoothScroll(false)
 })
 watch([layout, theme], render)
 

@@ -5,6 +5,7 @@ import { site, par } from '../site'
 import { useI18n } from '../composables/useI18n'
 import Section from '../components/Section.vue'
 import DitherArt from '../components/DitherArt.vue'
+import { smoothScrollTo } from '../composables/useSmoothScroll'
 
 const { t, lang, posts } = useI18n()
 const since = computed(() => posts.value[posts.value.length - 1]?.ano ?? '')
@@ -51,8 +52,8 @@ function goRedes() {
   const btn = document.querySelector<HTMLButtonElement>('[aria-controls="sec-redes"]')
   if (!btn) return
   if (btn.getAttribute('aria-expanded') !== 'true') btn.click()
-  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-  btn.closest('section')?.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'center' })
+  const sec = btn.closest('section')
+  if (sec) requestAnimationFrame(() => smoothScrollTo(sec, -Math.max(0, (window.innerHeight - sec.offsetHeight) / 2)))
 }
 </script>
 

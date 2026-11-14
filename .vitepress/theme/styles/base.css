@@ -103,3 +103,33 @@ canvas.dither {
     transition: none !important;
   }
 }
+
+/*
+  Barra de rolagem integrada ao tema: fina, quadrada, nas cores de cada tema.
+  Firefox e Chrome/Edge novos usam scrollbar-color; Safari usa os ::-webkit-scrollbar.
+*/
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--rule) transparent;
+}
+html {
+  scrollbar-color: var(--muted) var(--bg);
+}
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--rule);
+  border: 2px solid var(--bg);
+  border-radius: 0;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--muted);
+}
+::-webkit-scrollbar-corner {
+  background: var(--bg);
+}

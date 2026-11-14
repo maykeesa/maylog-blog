@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { computed, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, watch } from 'vue'
+import { startSmoothScroll, stopSmoothScroll } from './composables/useSmoothScroll'
 import { Content, useData, useRoute } from 'vitepress'
 import { useSearch } from './composables/useSearch'
 import { useI18n } from './composables/useI18n'
@@ -25,6 +26,9 @@ const layout = computed(() => {
   return rel.startsWith('posts/') || rel.startsWith('en/posts/') ? 'post' : 'page'
 })
 const searching = computed(() => query.value.trim().length > 0)
+
+onMounted(startSmoothScroll)
+onBeforeUnmount(stopSmoothScroll)
 
 /* trocar de página limpa a busca */
 watch(
