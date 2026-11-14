@@ -19,7 +19,7 @@
 site:
   nome: maylog
   autor: Mayke Andrade
-  url: https://maylog.vercel.app/ # domínio de exemplo: troque pelo seu quando tiver
+  url: https://maylog.net # endereço do site: usado na prévia de link, nos feeds e no sitemap
   frase: registros sobre o que der vontade de escrever.
   frase_en: notes on whatever feels worth writing.
 
