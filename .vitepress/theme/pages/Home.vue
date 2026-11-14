@@ -19,7 +19,7 @@ const agora = computed(() => site.agora.itens.map((i) => par(i, lang.value)))
 <template>
   <Section id="leiame" :label="t('home.readme')" :side="t('home.file')">
     <div class="intro">
-      <DitherArt :width="340" :height="96" shuffle />
+      <DitherArt :width="340" :height="96" caption />
       <p>{{ t('home.intro') }}</p>
     </div>
   </Section>

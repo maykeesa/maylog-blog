@@ -54,8 +54,6 @@ const pt = {
   'home.channels': 'canais',
 
   'art.scene': 'cena',
-  'art.shuffle': 'sortear outra',
-  'art.shuffleTitle': 'clique para sortear outra',
   'art.label': 'Arte pontilhada',
 
   'log.n': 'nº',
@@ -220,8 +218,6 @@ const en: Record<Key, string> = {
   'home.channels': 'channels',
 
   'art.scene': 'scene',
-  'art.shuffle': 'shuffle',
-  'art.shuffleTitle': 'click to shuffle',
   'art.label': 'Dithered art',
 
   'log.n': 'no.',
@@ -340,7 +336,12 @@ export type I18nKey = Key
 
 /* nomes de temas, cenas e assuntos em inglês (o resto fica como está) */
 export const TEMAS_EN: Record<string, string> = { ensaio: 'essay', técnica: 'tech', tecnica: 'tech', notas: 'notes', cinema: 'film' }
-export const CENAS_EN: Record<string, string> = { mar: 'sea', lua: 'moon', cidade: 'city', serra: 'ridge', ondas: 'waves', planeta: 'planet' }
+export const CENAS_EN: Record<string, string> = {
+  mar: 'sea', lua: 'moon', cidade: 'city', serra: 'ridge', ondas: 'waves', planeta: 'planet',
+  deserto: 'desert', floresta: 'forest', chuva: 'rain', neve: 'snow', farol: 'lighthouse', aurora: 'aurora',
+  campo: 'field', ponte: 'bridge', estrada: 'road', vulcao: 'volcano', eclipse: 'eclipse', nuvens: 'clouds',
+  coqueiros: 'palm trees', galaxia: 'galaxy'
+}
 export const ASSUNTOS_EN: Record<string, string> = {
   código: 'code', trabalho: 'work', fotos: 'photos', jogos: 'games', música: 'music', filmes: 'film', anime: 'anime'
 }

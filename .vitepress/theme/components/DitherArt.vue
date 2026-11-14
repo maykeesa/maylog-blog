@@ -6,61 +6,67 @@ import { useI18n } from '../composables/useI18n'
 
 /*
   Imagem pontilhada gerada na hora.
-  Sem "scene", sorteia uma das cenas; com "shuffle", mostra a legenda e o botão de sortear outra.
+  - Com "scene": desenha sempre aquela cena (ex.: a cena fixa de um post sem banner).
+  - Sem "scene": sorteia uma das 20 cenas cada vez que aparece (ex.: a home), sem repetir a última vista.
+  - Com "caption": mostra o nome da cena embaixo.
 */
 const {
   width,
   height,
   scene: fixedScene,
   seed: fixedSeed = 1,
-  shuffle = false,
-  captionPrefix = '',
+  caption = false,
   label
 } = defineProps<{
   width: number
   height: number
   scene?: string
   seed?: number
-  shuffle?: boolean
-  captionPrefix?: string
+  caption?: boolean
   label?: string
 }>()
 
+const LAST_KEY = 'maylog-last-scene'
 const canvas = useTemplateRef<HTMLCanvasElement>('canvas')
 const scene = shallowRef(fixedScene ?? '')
 const seed = shallowRef(fixedSeed)
 const { onThemeChange } = useTheme()
 const { t, cena } = useI18n()
 
-const caption = computed(
-  () => `${captionPrefix}${t('art.scene')}: ${scene.value ? cena(scene.value) : '—'} · ${RANDOM_SCENES.indexOf(scene.value) + 1}/${RANDOM_SCENES.length}`
-)
+const captionText = computed(() => `${t('art.scene')}: ${scene.value ? cena(scene.value) : '—'}`)
 
 function draw() {
   if (!canvas.value || !scene.value) return
   paintBits(canvas.value, sceneBits(scene.value, seed.value, width, height))
 }
 
-function pick() {
-  let next: string
-  do next = RANDOM_SCENES[Math.floor(Math.random() * RANDOM_SCENES.length)]
-  while (next === scene.value && RANDOM_SCENES.length > 1)
-  scene.value = next
+/* sorteia uma cena diferente da última que o leitor viu (lembrada só nesta aba) */
+function pickRandom() {
+  let last = ''
+  try {
+    last = sessionStorage.getItem(LAST_KEY) || ''
+  } catch {
+    /* sem armazenamento: sorteia sem essa regra */
+  }
+  const options = RANDOM_SCENES.filter((s) => s !== last)
+  scene.value = options[Math.floor(Math.random() * options.length)]
   seed.value = 1 + Math.floor(Math.random() * 99999)
+  try {
+    sessionStorage.setItem(LAST_KEY, scene.value)
+  } catch {
+    /* sem armazenamento */
+  }
   draw()
-}
-
-function onCanvasClick() {
-  if (shuffle) pick()
 }
 
 let off: (() => void) | undefined
 onMounted(() => {
-  if (!fixedScene) pick()
-  else draw()
+  if (fixedScene) draw()
+  else pickRandom()
   off = onThemeChange(() => requestAnimationFrame(draw))
 })
 onBeforeUnmount(() => off?.())
+
 /* quando quem usa troca a cena fixa (ex.: outro post), redesenha */
 watch(
   () => [fixedScene, fixedSeed] as const,
@@ -75,21 +81,8 @@ watch(
 
 <template>
   <div class="art">
-    <canvas
-      ref="canvas"
-      class="dither"
-      :class="{ clickable: shuffle }"
-      :width="width"
-      :height="height"
-      role="img"
-      :aria-label="label || t('art.label')"
-      :title="shuffle ? t('art.shuffleTitle') : undefined"
-      @click="onCanvasClick"
-    ></canvas>
-    <div v-if="shuffle" class="artcap">
-      <span>{{ caption }}</span>
-      <button type="button" class="linkbtn" @click="pick">{{ t('art.shuffle') }}</button>
-    </div>
+    <canvas ref="canvas" class="dither" :width="width" :height="height" role="img" :aria-label="label || t('art.label')"></canvas>
+    <p v-if="caption" class="artcap">{{ captionText }}</p>
   </div>
 </template>
 
@@ -98,16 +91,10 @@ watch(
   display: grid;
   gap: 6px;
 }
-.clickable {
-  cursor: pointer;
-}
 .artcap {
+  margin: 0;
   font-family: var(--mono);
   font-size: 12px;
   color: var(--muted);
-  display: flex;
-  justify-content: space-between;
-  gap: 8px;
-  flex-wrap: wrap;
 }
 </style>
