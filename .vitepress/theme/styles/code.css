@@ -112,3 +112,8 @@ div[class*='language-'].line-numbers-mode pre {
 .shiki span[style*='font-style: italic'] {
   font-style: italic;
 }
+
+/* linhas destacadas: ```ts {2,4-5} */
+div[class*='language-'] .line.highlighted {
+  background: var(--sel);
+}

@@ -17,11 +17,11 @@ O que ficou para depois. Marque com `[x]` quando terminar.
 
 ## melhorias combinadas
 
-- [ ] Prévia do link ao compartilhar (Open Graph: título, subtítulo e banner como imagem no WhatsApp, LinkedIn etc.).
-- [ ] Sitemap para o Google (o VitePress gera com a opção `sitemap.hostname`, depois do domínio).
-- [ ] Feeds em inglês (`/en/feed.json` e `/en/feed.xml`).
+- [x] Prévia do link ao compartilhar (Open Graph: título, subtítulo e banner como imagem no WhatsApp, LinkedIn etc.).
+- [x] Sitemap para o Google (gerado com o domínio de `site.ts`; confira depois de trocar o domínio).
+- [x] Feeds em inglês (`/en/feed.json` e `/en/feed.xml`).
 - [ ] Agendar posts: post com `data` no futuro só aparece quando a data chega, com um build automático diário.
-- [ ] Mostrar o nome do arquivo na barra dos blocos de código (ex.: "typescript · src/posts.ts").
+- [x] Mostrar o nome do arquivo na barra dos blocos de código (ex.: "typescript · src/posts.ts").
 - [ ] "ouvindo" do bloco agora se atualizando sozinho pelo Spotify ou stats.fm.
 - [ ] Contador de visitas de verdade: um serviço que responda `{"count": 1234}` a um POST (ex.: Cloudflare Worker com KV) e configurar `contador.url` em `site.ts`.
 

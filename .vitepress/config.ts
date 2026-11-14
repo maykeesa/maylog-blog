@@ -7,6 +7,7 @@ import footnote from 'markdown-it-footnote'
 import { ditherBanners } from './banners'
 import { feedDevServer, writeFeed } from './feed'
 import { ogHead, pageInfo, writeOgImages } from './og'
+import { codeTitle } from './codeTitle'
 
 /* Aplica o tema salvo antes da página aparecer, para não piscar no tema errado. */
 const themeBootstrap = `(function () {
@@ -48,6 +49,7 @@ export default defineConfig({
     lineNumbers: true,
     config(md) {
       md.use(footnote)
+      md.use(codeTitle)
     }
   },
   /* mapa do site para buscadores (usa o domínio de site.ts) */
