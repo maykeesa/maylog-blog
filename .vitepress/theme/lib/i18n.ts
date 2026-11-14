@@ -19,7 +19,7 @@ const pt = {
   'lang.noen': 'este registro ainda não tem versão em inglês',
 
   'search.label': 'buscar',
-  'search.ph': 'IA, vue, nostalgia…',
+  'search.ph': 'java, livros, motor…',
   'search.clear': 'limpar busca',
   'search.hint': 'filtros da busca',
   'search.combine': 'combine filtros:',
@@ -187,7 +187,7 @@ const en: Record<Key, string> = {
   'lang.noen': 'this entry has no english version yet',
 
   'search.label': 'search',
-  'search.ph': 'AI, vue, nostalgia…',
+  'search.ph': 'java, books, engines…',
   'search.clear': 'clear search',
   'search.hint': 'search filters',
   'search.combine': 'combine filters:',
