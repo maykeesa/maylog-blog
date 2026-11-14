@@ -54,7 +54,7 @@ const pt = {
   'home.recent': 'entradas recentes',
   'home.all': 'ver arquivo completo',
   'home.now': 'agora',
-  'home.following': 'acompanho',
+  'home.following': 'acompanhando',
   'home.channels': 'canais',
 
   'art.scene': 'cena',
