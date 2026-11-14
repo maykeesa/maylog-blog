@@ -11,7 +11,6 @@ O site está em https://maylog.net (domínio no Squarespace, hospedagem na Verce
 ## melhorias combinadas
 
 - [ ] "ouvindo" do bloco agora se atualizando sozinho pelo Spotify ou stats.fm.
-- [ ] Contador de visitas de verdade: um serviço que responda `{"count": 1234}` a um POST (ex.: Cloudflare Worker com KV) e configurar `contador.url` no `conteudo.yml`.
 
 ## para depois do blog no ar
 
