@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, shallowRef } from 'vue'
 import { withBase } from 'vitepress'
 import type { Post } from '../data/posts.data'
 import { useI18n } from '../composables/useI18n'
@@ -10,10 +10,10 @@ import FilterDropdown, { type Option } from '../components/FilterDropdown.vue'
 type Sort = 'recentes' | 'antigos' | 'az' | 'curtos'
 
 const { t, lang, entries, posts } = useI18n()
-const sort = ref<Sort>('recentes')
-const tema = ref<string | null>(null)
-const tag = ref<string | null>(null)
-const ano = ref<string | null>(null)
+const sort = shallowRef<Sort>('recentes')
+const tema = shallowRef<string | null>(null)
+const tag = shallowRef<string | null>(null)
+const ano = shallowRef<string | null>(null)
 
 function counted(values: string[]): [string, number][] {
   const c = new Map<string, number>()

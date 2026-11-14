@@ -1,25 +1,32 @@
 <script setup lang="ts">
-import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, shallowRef, useTemplateRef, watch } from 'vue'
 import type { Post } from '../data/posts.data'
 import { drawStory, type StoryLayout, type StoryTheme } from '../lib/story'
 import { useI18n } from '../composables/useI18n'
 import { pauseSmoothScroll } from '../composables/useSmoothScroll'
 
-const props = defineProps<{ post: Post; url: string; quote: string; fromSelection: boolean; theme: StoryTheme }>()
+const { post, url, quote, fromSelection, theme: initialTheme } = defineProps<{
+  post: Post
+  url: string
+  quote: string
+  fromSelection: boolean
+  theme: StoryTheme
+}>()
 const emit = defineEmits<{ close: [] }>()
 const { t } = useI18n()
 
-const layout = ref<StoryLayout>(props.fromSelection ? 'citacao' : 'capa')
-const theme = ref<StoryTheme>(props.theme)
-const src = ref('')
-const canSend = ref(false)
-const closeBtn = ref<HTMLButtonElement>()
+/* valores iniciais vindos de quem abriu a janela; depois o leitor troca à vontade */
+const layout = shallowRef<StoryLayout>(fromSelection ? 'citacao' : 'capa')
+const theme = shallowRef<StoryTheme>(initialTheme)
+const src = shallowRef('')
+const canSend = shallowRef(false)
+const closeBtn = useTemplateRef<HTMLButtonElement>('closeButton')
 let blob: Blob | null = null
 
-const fileName = `maylog-${props.post.n}-stories.png`
+const fileName = `maylog-${post.n}-stories.png`
 
 async function render() {
-  const cv = await drawStory(props.post, { layout: layout.value, theme: theme.value, quote: props.quote, url: props.url, labels: { entry: t('story.entry'), excerpt: t('story.excerpt'), readFull: t('story.readFull') } })
+  const cv = await drawStory(post, { layout: layout.value, theme: theme.value, quote, url, labels: { entry: t('story.entry'), excerpt: t('story.excerpt'), readFull: t('story.readFull') } })
   src.value = cv.toDataURL('image/png')
   blob = await new Promise<Blob | null>((r) => cv.toBlob(r, 'image/png'))
 }
@@ -35,7 +42,7 @@ function download() {
 async function send() {
   if (!blob) return
   try {
-    await navigator.share({ files: [new File([blob], fileName, { type: 'image/png' })], title: props.post.titulo })
+    await navigator.share({ files: [new File([blob], fileName, { type: 'image/png' })], title: post.titulo })
   } catch {
     /* compartilhamento cancelado */
   }
@@ -64,20 +71,21 @@ onBeforeUnmount(() => {
 })
 watch([layout, theme], render)
 
-const tip = () =>
-  layout.value === 'capa'
-    ? t('story.tipCover')
-    : props.fromSelection
-      ? t('story.tipSel')
-      : t('story.tipQuote')
+const THEMES = ['white', 'dark', 'sepia'] as const
+const tip = computed(() => {
+  if (layout.value === 'capa') return t('story.tipCover')
+  return fromSelection ? t('story.tipSel') : t('story.tipQuote')
+})
 </script>
 
 <template>
+  <!-- a janela vai direto para o <body>, por cima de tudo, fora do post -->
+  <Teleport to="body">
   <div class="modal-back" @click.self="emit('close')">
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="story-h">
       <div class="modal-bar">
         <span id="story-h">{{ t('story.title') }}</span>
-        <button ref="closeBtn" type="button" class="linkbtn x" :aria-label="t('story.close')" @click="emit('close')">×</button>
+        <button ref="closeButton" type="button" class="linkbtn x" :aria-label="t('story.close')" @click="emit('close')">×</button>
       </div>
       <div class="modal-body">
         <div class="story-prev"><img v-if="src" :src="src" :alt="t('story.preview')" /></div>
@@ -92,10 +100,10 @@ const tip = () =>
           <div>
             <p class="lbl">{{ t('story.theme') }}</p>
             <div class="seg">
-              <button v-for="t in (['white', 'dark', 'sepia'] as const)" :key="t" type="button" :aria-pressed="theme === t" @click="theme = t">{{ t }}</button>
+              <button v-for="th in THEMES" :key="th" type="button" :aria-pressed="theme === th" @click="theme = th">{{ th }}</button>
             </div>
           </div>
-          <p class="tip">{{ tip() }}</p>
+          <p class="tip">{{ tip }}</p>
           <div class="actions">
             <button type="button" class="btn" :disabled="!src" @click="download">{{ t('story.download') }}</button>
             <button v-if="canSend" type="button" class="btn" :disabled="!src" @click="send">{{ t('story.send') }}</button>
@@ -105,6 +113,7 @@ const tip = () =>
       </div>
     </div>
   </div>
+  </Teleport>
 </template>
 
 <style scoped>

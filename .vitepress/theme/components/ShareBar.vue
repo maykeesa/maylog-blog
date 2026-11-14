@@ -1,23 +1,23 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, shallowRef } from 'vue'
 import type { Post } from '../data/posts.data'
 import { site } from '../site'
 import { useTheme } from '../composables/useTheme'
 import { useI18n } from '../composables/useI18n'
 import StoryModal from './StoryModal.vue'
 
-const props = defineProps<{ post: Post }>()
+const { post } = defineProps<{ post: Post }>()
 const { theme } = useTheme()
 const { t } = useI18n()
 
-const url = computed(() => site.url.replace(/\/$/, '') + props.post.url)
-const wa = computed(() => 'https://wa.me/?text=' + encodeURIComponent(`${props.post.titulo} — ${url.value}`))
+const url = computed(() => site.url.replace(/\/$/, '') + post.url)
+const wa = computed(() => 'https://wa.me/?text=' + encodeURIComponent(`${post.titulo} — ${url.value}`))
 const li = computed(() => 'https://www.linkedin.com/sharing/share-offsite/?url=' + encodeURIComponent(url.value))
 
-const copied = ref('')
+const copied = shallowRef('')
 const copyLabel = computed(() => copied.value || t('share.copy'))
-const hasNative = ref(false)
-const story = ref<{ quote: string; fromSelection: boolean } | null>(null)
+const hasNative = shallowRef(false)
+const story = shallowRef<{ quote: string; fromSelection: boolean } | null>(null)
 
 onMounted(() => (hasNative.value = typeof navigator.share === 'function'))
 
@@ -35,7 +35,7 @@ async function copy() {
 }
 async function native() {
   try {
-    await navigator.share({ title: props.post.titulo, url: url.value })
+    await navigator.share({ title: post.titulo, url: url.value })
   } catch {
     /* cancelado */
   }
@@ -51,7 +51,7 @@ function openStory() {
     return
   }
   const bq = document.querySelector('.post-body blockquote')?.textContent?.trim()
-  story.value = { quote: bq || props.post.subtitulo || props.post.resumo, fromSelection: false }
+  story.value = { quote: bq || post.subtitulo || post.resumo, fromSelection: false }
 }
 </script>
 

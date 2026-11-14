@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, shallowRef, useTemplateRef, watch } from 'vue'
 import { useRoute } from 'vitepress'
 import Section from './Section.vue'
 import { useI18n } from '../composables/useI18n'
@@ -9,21 +9,29 @@ import { useI18n } from '../composables/useI18n'
   Aparece no topo (com 3 ou mais partes) e numa barra fixa que surge ao rolar,
   com a parte atual, o sumário recolhível e uma linha de progresso de leitura.
 */
-const props = defineProps<{ title: string }>()
+const { title } = defineProps<{ title: string }>()
 
 interface Head {
   id: string
   text: string
 }
 const MIN = 3
-const heads = ref<Head[]>([])
-const current = ref(-1)
-const showBar = ref(false)
-const popOpen = ref(false)
-const progress = ref(0)
-const wrap = ref<HTMLElement>()
+const heads = shallowRef<Head[]>([])
+const current = shallowRef(-1)
+const showBar = shallowRef(false)
+const popOpen = shallowRef(false)
+const progress = shallowRef(0)
+const wrap = useTemplateRef<HTMLElement>('wrap')
 const route = useRoute()
 const { t } = useI18n()
+
+const pad = (n: number) => String(n).padStart(2, '0')
+const hasToc = computed(() => heads.value.length >= MIN)
+const partsLabel = computed(() => `${heads.value.length} ${t('toc.parts')}`)
+/* "§ 02 · o arquivo em branco" e "02/08" na barra fixa */
+const currentLabel = computed(() => `§ ${pad(current.value + 1)} · ${heads.value[current.value]?.text ?? t('toc.intro')}`)
+const position = computed(() => `${pad(current.value + 1)}/${pad(heads.value.length)}`)
+const progressStyle = computed(() => ({ width: `${progress.value * 100}%` }))
 
 let headEls: HTMLElement[] = []
 
@@ -56,7 +64,6 @@ function update() {
   }
 }
 
-const pad = (n: number) => String(n).padStart(2, '0')
 
 function onDoc(e: MouseEvent) {
   if (popOpen.value && wrap.value && !wrap.value.contains(e.target as Node)) popOpen.value = false
@@ -98,7 +105,7 @@ watch(
 </script>
 
 <template>
-  <Section v-if="heads.length >= MIN" id="sumario" :label="t('toc.title')" :side="`${heads.length} ${t('toc.parts')}`" class="toc">
+  <Section v-if="hasToc" id="sumario" :label="t('toc.title')" :side="partsLabel" class="toc">
     <ol class="toc-list">
       <li v-for="h in heads" :key="h.id">
         <a :href="`#${h.id}`"><span class="tt">{{ h.text }}</span><i></i>↓</a>
@@ -109,15 +116,15 @@ watch(
   <div v-show="showBar" class="postbar">
     <div class="postbar-in">
       <div class="pb-text">
-        <span class="pb-title">{{ props.title }}</span>
-        <span class="pb-sec">§ {{ pad(current + 1) }} · {{ current >= 0 ? heads[current]?.text : t('toc.intro') }}</span>
+        <span class="pb-title">{{ title }}</span>
+        <span class="pb-sec">{{ currentLabel }}</span>
       </div>
-      <div v-if="heads.length >= MIN" ref="wrap" class="pb-toc">
+      <div v-if="hasToc" ref="wrap" class="pb-toc">
         <button type="button" class="ddbtn" :aria-expanded="popOpen" @click.stop="popOpen = !popOpen">
-          <span class="k">{{ t('toc.contents') }}</span><b>{{ pad(current + 1) }}/{{ pad(heads.length) }}</b><span class="k">▾</span>
+          <span class="k">{{ t('toc.contents') }}</span><b>{{ position }}</b><span class="k">▾</span>
         </button>
         <div v-if="popOpen" class="pop">
-          <div class="pop-bar"><span>{{ t('toc.title') }}</span><span>{{ heads.length }} {{ t('toc.parts') }}</span></div>
+          <div class="pop-bar"><span>{{ t('toc.title') }}</span><span>{{ partsLabel }}</span></div>
           <ol class="toc-list">
             <li v-for="(h, i) in heads" :key="h.id" :class="{ active: i === current }">
               <a :href="`#${h.id}`" @click="popOpen = false"><span class="tt">{{ h.text }}</span><i></i>↓</a>
@@ -126,7 +133,7 @@ watch(
         </div>
       </div>
     </div>
-    <div class="pb-progress" aria-hidden="true"><span :style="{ width: progress * 100 + '%' }"></span></div>
+    <div class="pb-progress" aria-hidden="true"><span :style="progressStyle"></span></div>
   </div>
 </template>
 

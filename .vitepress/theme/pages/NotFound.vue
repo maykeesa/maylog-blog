@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, shallowRef } from 'vue'
 import { withBase } from 'vitepress'
 import { data as allPosts, type Post } from '../data/posts.data'
 import { DICT, TEMAS_EN, type I18nKey } from '../lib/i18n'
 import DitherArt from '../components/DitherArt.vue'
 import LogList from '../components/LogList.vue'
 
-const path = ref('')
-const stamp = ref('')
+const path = shallowRef('')
+const stamp = shallowRef('')
 
 /* a 404 é uma página só; o idioma sai do endereço que a pessoa tentou abrir */
 const isEn = computed(() => path.value.startsWith('/en/') || path.value === '/en')

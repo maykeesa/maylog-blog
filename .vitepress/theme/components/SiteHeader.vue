@@ -6,13 +6,13 @@ import { useI18n } from '../composables/useI18n'
 import { useCurrentPost } from '../composables/usePosts'
 import { site } from '../site'
 
-const props = defineProps<{ since?: string }>()
+const { since } = defineProps<{ since?: string }>()
 const { theme, setTheme } = useTheme()
 const { page, frontmatter } = useData()
 const { t, lang, href } = useI18n()
 const { post } = useCurrentPost()
 
-const topText = computed(() => (props.since ? `${t('weblog')} · ${t('since')} ${props.since}` : t('weblog')))
+const topText = computed(() => (since ? `${t('weblog')} · ${t('since')} ${since}` : t('weblog')))
 const frase = computed(() => (lang.value === 'en' ? site.fraseEn : site.frase))
 
 const isPost = computed(() => /^(en\/)?posts\//.test(page.value.relativePath))

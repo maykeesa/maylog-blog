@@ -1,9 +1,11 @@
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, shallowRef, useTemplateRef } from 'vue'
+import { norm } from '../lib/search'
 
 /*
   Botão compacto ("tag: todas ▾") que abre uma janelinha com as opções e a contagem.
   Escala bem com muitas opções: lista com rolagem e, se pedido, campo de procura.
+  Usado com v-model: o valor escolhido sobe para quem usa.
 */
 export interface Option {
   value: string | null
@@ -11,33 +13,37 @@ export interface Option {
   count?: number
 }
 
-const props = defineProps<{
+const {
+  label,
+  title,
+  options,
+  findable = false,
+  findPlaceholder,
+  countLabel,
+  nothingLabel = 'nada encontrado'
+} = defineProps<{
   label: string
   title: string
   options: Option[]
-  modelValue: string | null
   findable?: boolean
   findPlaceholder?: string
   countLabel?: string
   nothingLabel?: string
 }>()
-const emit = defineEmits<{ 'update:modelValue': [value: string | null] }>()
+const model = defineModel<string | null>({ required: true })
 
-const open = ref(false)
-const query = ref('')
-const root = ref<HTMLElement>()
-const pop = ref<HTMLElement>()
-const alignRight = ref(false)
+const open = shallowRef(false)
+const query = shallowRef('')
+const alignRight = shallowRef(false)
+const root = useTemplateRef<HTMLElement>('root')
+const pop = useTemplateRef<HTMLElement>('pop')
 
-const current = computed(() => props.options.find((o) => o.value === props.modelValue))
-const active = computed(() => props.modelValue !== null && props.options[0]?.value === null)
-
-function norm(s: string) {
-  return s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase()
-}
+const current = computed(() => options.find((o) => o.value === model.value))
+/* destaca o botão quando há um filtro escolhido (a primeira opção é "todos") */
+const active = computed(() => model.value !== null && options[0]?.value === null)
 const shown = computed(() => {
   const q = norm(query.value.trim().replace(/^#/, ''))
-  return q ? props.options.filter((o) => norm(o.label).includes(q)) : props.options
+  return q ? options.filter((o) => norm(o.label).includes(q)) : options
 })
 
 async function toggle() {
@@ -48,11 +54,10 @@ async function toggle() {
   await nextTick()
   const r = pop.value?.getBoundingClientRect()
   if (r && r.right > window.innerWidth - 12) alignRight.value = true
-  const target = pop.value?.querySelector<HTMLElement>(props.findable ? 'input' : '[aria-pressed="true"]')
-  target?.focus()
+  pop.value?.querySelector<HTMLElement>(findable ? 'input' : '[aria-pressed="true"]')?.focus()
 }
 function choose(v: string | null) {
-  emit('update:modelValue', v)
+  model.value = v
   open.value = false
 }
 function onDoc(e: MouseEvent) {
@@ -95,12 +100,12 @@ onBeforeUnmount(() => {
       />
       <ul>
         <li v-for="o in shown" :key="String(o.value)">
-          <button type="button" class="popopt" :aria-pressed="o.value === modelValue" @click="choose(o.value)">
+          <button type="button" class="popopt" :aria-pressed="o.value === model" @click="choose(o.value)">
             <span class="nm">{{ o.label }}</span><i></i><small v-if="o.count !== undefined">{{ o.count }}</small>
           </button>
         </li>
       </ul>
-      <p v-if="!shown.length" class="none">{{ nothingLabel || 'nada encontrado' }}</p>
+      <p v-if="!shown.length" class="none">{{ nothingLabel }}</p>
     </div>
   </span>
 </template>

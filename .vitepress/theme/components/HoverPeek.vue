@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, shallowRef, useTemplateRef, watch } from 'vue'
 import { useRoute } from 'vitepress'
-import { watch } from 'vue'
 import { useI18n } from '../composables/useI18n'
 import PostArt from './PostArt.vue'
 
@@ -9,12 +8,20 @@ import PostArt from './PostArt.vue'
   Janelinha de prévia que segue o mouse sobre qualquer link de post com data-n
   (listas da home, arquivos, 404). Só em telas com mouse.
 */
-const n = ref<string | null>(null)
-const pos = ref({ left: 0, top: 0 })
-const box = ref<HTMLElement>()
+const n = shallowRef<string | null>(null)
+const pos = shallowRef({ left: 0, top: 0 })
+const box = useTemplateRef<HTMLElement>('box')
 const { t, posts } = useI18n()
-const post = computed(() => posts.value.find((p) => p.n === n.value))
 const route = useRoute()
+
+const post = computed(() => posts.value.find((p) => p.n === n.value))
+/* nome do arquivo na barra: "012.md", ou "012.en.md" na versão traduzida */
+const fileName = computed(() => {
+  const p = post.value
+  if (!p) return ''
+  return `${p.n}${p.url.startsWith('/en/') && !p.ptOnly ? '.en' : ''}.md`
+})
+const boxStyle = computed(() => ({ left: `${pos.value.left}px`, top: `${pos.value.top}px` }))
 
 let enabled = false
 
@@ -67,15 +74,19 @@ watch(() => route.path, hide)
 </script>
 
 <template>
-  <div v-if="post" ref="box" class="peek" aria-hidden="true" :style="{ left: pos.left + 'px', top: pos.top + 'px' }">
-    <div class="peek-bar"><span>{{ t('peek.entry') }} {{ post.n }}{{ post.en && !post.ptOnly && post.url.startsWith('/en/') ? '.en' : '' }}.md</span><span>_□×</span></div>
-    <div class="peek-body">
-      <PostArt :post="post" :width="280" :height="80" />
-      <p class="peek-t">{{ post.titulo }}</p>
-      <p class="peek-ex">{{ post.resumo }}</p>
-      <p class="peek-m">{{ post.minutos }} min · {{ post.tema }}<template v-if="post.ptOnly"> · {{ t('log.ptOnly') }}</template> · {{ t('peek.read') }}</p>
+  <Teleport to="body">
+    <div v-if="post" ref="box" class="peek" aria-hidden="true" :style="boxStyle">
+      <div class="peek-bar"><span>{{ t('peek.entry') }} {{ fileName }}</span><span>_□×</span></div>
+      <div class="peek-body">
+        <PostArt :post="post" :width="280" :height="80" />
+        <p class="peek-t">{{ post.titulo }}</p>
+        <p class="peek-ex">{{ post.resumo }}</p>
+        <p class="peek-m">
+          {{ post.minutos }} min · {{ post.tema }}<template v-if="post.ptOnly"> · {{ t('log.ptOnly') }}</template> · {{ t('peek.read') }}
+        </p>
+      </div>
     </div>
-  </div>
+  </Teleport>
 </template>
 
 <style scoped>

@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, useTemplateRef } from 'vue'
 import { useSearch } from '../composables/useSearch'
 import { useI18n } from '../composables/useI18n'
 
-const { query } = useSearch()
+const { query, clear } = useSearch()
 const { t } = useI18n()
-const input = ref<HTMLInputElement>()
+const input = useTemplateRef<HTMLInputElement>('searchInput')
 
 const examples = computed(() => [
   { ex: 'tag:ia', desc: t('search.d.tag') },
@@ -28,11 +28,11 @@ function onKey(e: KeyboardEvent) {
   }
 }
 function clearQuery() {
-  query.value = ''
+  clear()
   input.value?.focus()
 }
 function onEsc() {
-  query.value = ''
+  clear()
   input.value?.blur()
 }
 onMounted(() => document.addEventListener('keydown', onKey))
@@ -47,7 +47,7 @@ defineExpose({ focus: () => input.value?.focus() })
     <span class="field">
     <input
       id="q"
-      ref="input"
+      ref="searchInput"
       v-model="query"
       type="search"
       :placeholder="t('search.ph')"

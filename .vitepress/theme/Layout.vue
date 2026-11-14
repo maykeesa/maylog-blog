@@ -17,7 +17,7 @@ import NotFound from './pages/NotFound.vue'
 
 const { frontmatter, page } = useData()
 const route = useRoute()
-const { query } = useSearch()
+const { query, clear } = useSearch()
 const { t, lang, entries, posts } = useI18n()
 
 const layout = computed(() => {
@@ -33,7 +33,7 @@ onBeforeUnmount(stopSmoothScroll)
 /* trocar de página limpa a busca */
 watch(
   () => route.path,
-  () => (query.value = '')
+  () => clear()
 )
 
 /* "desde AAAA" sai do primeiro post; "última atualização" sai do mais recente */

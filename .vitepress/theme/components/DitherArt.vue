@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, shallowRef, useTemplateRef, watch } from 'vue'
 import { RANDOM_SCENES, paintBits, sceneBits } from '../lib/dither'
 import { useTheme } from '../composables/useTheme'
 import { useI18n } from '../composables/useI18n'
@@ -8,7 +8,15 @@ import { useI18n } from '../composables/useI18n'
   Imagem pontilhada gerada na hora.
   Sem "scene", sorteia uma das cenas; com "shuffle", mostra a legenda e o botão de sortear outra.
 */
-const props = defineProps<{
+const {
+  width,
+  height,
+  scene: fixedScene,
+  seed: fixedSeed = 1,
+  shuffle = false,
+  captionPrefix = '',
+  label
+} = defineProps<{
   width: number
   height: number
   scene?: string
@@ -18,15 +26,19 @@ const props = defineProps<{
   label?: string
 }>()
 
-const cv = ref<HTMLCanvasElement>()
-const scene = ref(props.scene ?? '')
-const seed = ref(props.seed ?? 1)
+const canvas = useTemplateRef<HTMLCanvasElement>('canvas')
+const scene = shallowRef(fixedScene ?? '')
+const seed = shallowRef(fixedSeed)
 const { onThemeChange } = useTheme()
 const { t, cena } = useI18n()
 
+const caption = computed(
+  () => `${captionPrefix}${t('art.scene')}: ${scene.value ? cena(scene.value) : '—'} · ${RANDOM_SCENES.indexOf(scene.value) + 1}/${RANDOM_SCENES.length}`
+)
+
 function draw() {
-  if (!cv.value || !scene.value) return
-  paintBits(cv.value, sceneBits(scene.value, seed.value, props.width, props.height))
+  if (!canvas.value || !scene.value) return
+  paintBits(canvas.value, sceneBits(scene.value, seed.value, width, height))
 }
 
 function pick() {
@@ -38,26 +50,33 @@ function pick() {
   draw()
 }
 
+function onCanvasClick() {
+  if (shuffle) pick()
+}
+
 let off: (() => void) | undefined
 onMounted(() => {
-  if (!props.scene) pick()
+  if (!fixedScene) pick()
   else draw()
   off = onThemeChange(() => requestAnimationFrame(draw))
 })
 onBeforeUnmount(() => off?.())
-watch(() => [props.scene, props.seed], () => {
-  if (props.scene) {
-    scene.value = props.scene
-    seed.value = props.seed ?? 1
+/* quando quem usa troca a cena fixa (ex.: outro post), redesenha */
+watch(
+  () => [fixedScene, fixedSeed] as const,
+  ([s, sd]) => {
+    if (!s) return
+    scene.value = s
+    seed.value = sd
     draw()
   }
-})
+)
 </script>
 
 <template>
   <div class="art">
     <canvas
-      ref="cv"
+      ref="canvas"
       class="dither"
       :class="{ clickable: shuffle }"
       :width="width"
@@ -65,10 +84,10 @@ watch(() => [props.scene, props.seed], () => {
       role="img"
       :aria-label="label || t('art.label')"
       :title="shuffle ? t('art.shuffleTitle') : undefined"
-      @click="shuffle && pick()"
+      @click="onCanvasClick"
     ></canvas>
     <div v-if="shuffle" class="artcap">
-      <span>{{ captionPrefix }}{{ t('art.scene') }}: {{ scene ? cena(scene) : '—' }} · {{ RANDOM_SCENES.indexOf(scene) + 1 }}/{{ RANDOM_SCENES.length }}</span>
+      <span>{{ caption }}</span>
       <button type="button" class="linkbtn" @click="pick">{{ t('art.shuffle') }}</button>
     </div>
   </div>

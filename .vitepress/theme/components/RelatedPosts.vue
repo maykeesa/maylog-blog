@@ -7,22 +7,26 @@ import Section from './Section.vue'
 import PostArt from './PostArt.vue'
 
 /* Até 3 posts parecidos: cada tag em comum vale 3 pontos, o mesmo tema vale 2; empate vai para a data mais próxima. */
-const props = defineProps<{ post: Post }>()
+const { post } = defineProps<{ post: Post }>()
 const { t, posts } = useI18n()
 
-const related = computed(() => {
-  const cur = props.post
-  return posts.value
-    .filter((p) => p.url !== cur.url)
+const related = computed(() =>
+  posts.value
+    .filter((p) => p.url !== post.url)
     .map((p) => {
-      const shared = p.tags.filter((t) => cur.tags.includes(t))
-      const same = p.tema === cur.tema
-      return { p, shared, same, score: shared.length * 3 + (same ? 2 : 0) }
+      const shared = p.tags.filter((tag) => post.tags.includes(tag))
+      const same = p.tema === post.tema
+      return {
+        p,
+        score: shared.length * 3 + (same ? 2 : 0),
+        /* o que os dois têm em comum, mostrado no card: "#escrita · ensaio" */
+        common: [...shared.map((tag) => `#${tag}`), ...(same ? [p.tema] : [])].join(' · ')
+      }
     })
     .filter((x) => x.score > 0)
-    .sort((a, b) => b.score - a.score || Math.abs(+cur.n - +a.p.n) - Math.abs(+cur.n - +b.p.n))
+    .sort((a, b) => b.score - a.score || Math.abs(+post.n - +a.p.n) - Math.abs(+post.n - +b.p.n))
     .slice(0, 3)
-})
+)
 </script>
 
 <template>
@@ -32,7 +36,7 @@ const related = computed(() => {
         <PostArt :post="x.p" :width="170" :height="64" />
         <span class="rm">{{ t('log.n') }} {{ x.p.n }} · {{ x.p.dataLog }}</span>
         <span class="rt">{{ x.p.titulo }}</span>
-        <span class="rw">{{ t('rel.common') }} <b>{{ [...x.shared.map((t) => '#' + t), ...(x.same ? [x.p.tema] : [])].join(' · ') }}</b></span>
+        <span class="rw">{{ t('rel.common') }} <b>{{ x.common }}</b></span>
       </a>
     </div>
   </Section>

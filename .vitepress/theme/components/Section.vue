@@ -1,18 +1,18 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { onMounted, shallowRef } from 'vue'
 
 /*
   Seção com a barra cinza que abre e fecha.
   O estado (aberta ou fechada) fica salvo no navegador, por seção.
 */
-const props = defineProps<{
+const { id, label, side } = defineProps<{
   id: string
   label: string
   side?: string
 }>()
 
 const STORAGE = 'maylog-closed'
-const open = ref(true)
+const open = shallowRef(true)
 
 function readClosed(): Record<string, boolean> {
   try {
@@ -23,13 +23,13 @@ function readClosed(): Record<string, boolean> {
 }
 
 onMounted(() => {
-  open.value = !readClosed()[props.id]
+  open.value = !readClosed()[id]
 })
 
 function toggle() {
   open.value = !open.value
   const closed = readClosed()
-  closed[props.id] = !open.value
+  closed[id] = !open.value
   try {
     localStorage.setItem(STORAGE, JSON.stringify(closed))
   } catch {

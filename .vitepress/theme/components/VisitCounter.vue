@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { computed, nextTick, onMounted, ref } from 'vue'
+import { computed, nextTick, onMounted, shallowRef } from 'vue'
 import { site } from '../site'
 import { useI18n } from '../composables/useI18n'
 
 /* Contador retrô em formato de botão 88×31: seis dígitos que rolam como um odômetro. */
-const count = ref<number | null>(null)
-const rolled = ref(false)
+const count = shallowRef<number | null>(null)
+const rolled = shallowRef(false)
 const { t, lang } = useI18n()
 const locale = computed(() => (lang.value === 'en' ? 'en-US' : 'pt-BR'))
 

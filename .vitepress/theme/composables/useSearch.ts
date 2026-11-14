@@ -1,8 +1,15 @@
-import { ref } from 'vue'
+import { shallowRef } from 'vue'
 
-/* o texto da busca é compartilhado entre o campo (cabeçalho) e os resultados (área principal) */
-const query = ref('')
+/*
+  Texto da busca, compartilhado entre o campo (no cabeçalho) e os resultados (na área principal).
+  O campo usa v-model em "query"; os outros limpam pela ação "clear".
+*/
+const query = shallowRef('')
+
+function clear() {
+  query.value = ''
+}
 
 export function useSearch() {
-  return { query }
+  return { query, clear }
 }

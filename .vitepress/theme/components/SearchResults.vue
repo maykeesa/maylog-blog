@@ -5,51 +5,57 @@ import { parse, search, segments, snippet, termsFor, type Field } from '../lib/s
 import { useSearch } from '../composables/useSearch'
 import { useI18n } from '../composables/useI18n'
 import type { I18nKey } from '../lib/i18n'
+import HighlightText from './HighlightText.vue'
 
-const { query } = useSearch()
+const { query, clear } = useSearch()
 const { t, entries, href, posts } = useI18n()
 
-const crit = computed(() => parse(query.value))
-const results = computed(() => search(posts.value, query.value))
-const terms = computed(() => ({
-  titulo: termsFor(crit.value, 'título'),
-  tema: termsFor(crit.value, 'tema'),
-  tags: termsFor(crit.value, 'tags'),
-  texto: termsFor(crit.value, 'texto')
-}))
+const q = computed(() => query.value.trim())
 const fieldName = (f: Field) => t(`f.${f}` as I18nKey)
+
+/* cada resultado já vem com os trechos marcados, prontos para mostrar */
+const rows = computed(() => {
+  const crit = parse(query.value)
+  const terms = {
+    titulo: termsFor(crit, 'título'),
+    tema: termsFor(crit, 'tema'),
+    tags: termsFor(crit, 'tags'),
+    texto: termsFor(crit, 'texto')
+  }
+  return search(posts.value, query.value).map(({ post, where }) => ({
+    post,
+    dateHit: where.includes('data'),
+    tema: segments(post.tema, terms.tema),
+    titulo: segments(post.titulo, terms.titulo),
+    trecho: segments(snippet(post.texto, terms.texto) || post.resumo, terms.texto),
+    tags: segments(post.tags.map((x) => `#${x}`).join(' '), terms.tags),
+    onde: where.map(fieldName).join(', ')
+  }))
+})
 </script>
 
 <template>
   <section class="results">
     <h2 class="bar">
-      <span class="rlbl">▸ {{ t('res.for') }} “{{ query.trim() }}”</span>
-      <span class="side">{{ entries(results.length) }}</span>
+      <span class="rlbl">▸ {{ t('res.for') }} “{{ q }}”</span>
+      <span class="side">{{ entries(rows.length) }}</span>
     </h2>
     <ul class="res">
-      <li v-for="r in results" :key="r.post.url">
-        <a :href="withBase(r.post.url)" @click="query = ''">
+      <li v-for="r in rows" :key="r.post.url">
+        <a :href="withBase(r.post.url)" @click="clear">
           <span class="rm">
             {{ t('log.n') }} {{ r.post.n }} ·
-            <mark v-if="r.where.includes('data')">{{ r.post.dataLog }}</mark><template v-else>{{ r.post.dataLog }}</template>
-            ·
-            <template v-for="(s, i) in segments(r.post.tema, terms.tema)" :key="i"><mark v-if="s.hit">{{ s.text }}</mark><template v-else>{{ s.text }}</template></template>
+            <mark v-if="r.dateHit">{{ r.post.dataLog }}</mark><template v-else>{{ r.post.dataLog }}</template>
+            · <HighlightText :parts="r.tema" />
           </span>
-          <span class="rt">
-            <template v-for="(s, i) in segments(r.post.titulo, terms.titulo)" :key="i"><mark v-if="s.hit">{{ s.text }}</mark><template v-else>{{ s.text }}</template></template>
-          </span>
-          <span class="rs">
-            <template v-for="(s, i) in segments(snippet(r.post.texto, terms.texto) || r.post.resumo, terms.texto)" :key="i"><mark v-if="s.hit">{{ s.text }}</mark><template v-else>{{ s.text }}</template></template>
-          </span>
-          <span class="rw">
-            {{ t('res.found') }}: {{ r.where.map(fieldName).join(', ') }} · tags:
-            <template v-for="(s, i) in segments(r.post.tags.map((x) => '#' + x).join(' '), terms.tags)" :key="i"><mark v-if="s.hit">{{ s.text }}</mark><template v-else>{{ s.text }}</template></template>
-          </span>
+          <span class="rt"><HighlightText :parts="r.titulo" /></span>
+          <span class="rs"><HighlightText :parts="r.trecho" /></span>
+          <span class="rw">{{ t('res.found') }}: {{ r.onde }} · tags: <HighlightText :parts="r.tags" /></span>
         </a>
       </li>
     </ul>
-    <p v-if="!results.length" class="empty">
-      {{ t('res.none', { q: query.trim() }) }} <a :href="withBase(href('/arquivos'))">{{ t('res.archive') }}</a>.
+    <p v-if="!rows.length" class="empty">
+      {{ t('res.none', { q }) }} <a :href="withBase(href('/arquivos'))">{{ t('res.archive') }}</a>.
     </p>
   </section>
 </template>
