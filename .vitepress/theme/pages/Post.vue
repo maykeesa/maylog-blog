@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { Content, withBase } from 'vitepress'
 import { useCurrentPost } from '../composables/usePosts'
+import PostToc from '../components/PostToc.vue'
+import RelatedPosts from '../components/RelatedPosts.vue'
 
 const { post, newer, older } = useCurrentPost()
 </script>
@@ -16,13 +18,15 @@ const { post, newer, older } = useCurrentPost()
     <h1>{{ post.titulo }}</h1>
     <p v-if="post.subtitulo" class="dek">{{ post.subtitulo }}</p>
 
-    <slot name="before-body" />
+    <PostToc :title="post.titulo" />
 
     <div class="post-body">
       <Content />
     </div>
 
     <slot name="after-body" />
+
+    <RelatedPosts :post="post" />
 
     <nav class="pager" aria-label="Entradas">
       <a v-if="older" :href="withBase(older.url)">← {{ older.n }} {{ older.titulo }}</a>
