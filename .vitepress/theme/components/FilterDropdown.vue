@@ -60,6 +60,7 @@ function choose(v: string | null) {
   model.value = v
   open.value = false
 }
+/* qualquer clique fora fecha, inclusive no botão de outro filtro: só um fica aberto por vez */
 function onDoc(e: MouseEvent) {
   if (open.value && root.value && !root.value.contains(e.target as Node)) open.value = false
 }
@@ -81,7 +82,7 @@ onBeforeUnmount(() => {
 
 <template>
   <span ref="root" class="dd">
-    <button type="button" class="ddbtn" :class="{ on: active }" aria-haspopup="dialog" :aria-expanded="open" @click.stop="toggle">
+    <button type="button" class="ddbtn" :class="{ on: active }" aria-haspopup="dialog" :aria-expanded="open" @click="toggle">
       <span class="k">{{ label }}:</span>
       <b>{{ current?.label }}</b>
       <span class="k">▾</span>
