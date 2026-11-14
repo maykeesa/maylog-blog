@@ -3,6 +3,7 @@ import { computed, onMounted, shallowRef, useTemplateRef } from 'vue'
 import { Content } from 'vitepress'
 import { par } from '../site'
 import { data as site } from '../data/site.data'
+import { decodeMail } from '../lib/mail'
 import { useI18n } from '../composables/useI18n'
 import Section from '../components/Section.vue'
 import SceneArt from '../components/SceneArt.vue'
@@ -17,15 +18,17 @@ const copyLabel = computed(() => copied.value || t('about.copy'))
 const mailEl = useTemplateRef<HTMLElement>('mail')
 
 /*
-  O e-mail não vai escrito no HTML gerado: lá aparece "fulano [arroba] gmail [ponto] com".
+  O e-mail não vai escrito no HTML gerado (lá aparece "fulano [arroba] gmail [ponto] com")
+  nem no JavaScript (vai embaralhado, veja lib/mail.ts).
   O endereço de verdade só é montado no navegador, depois que a página carrega,
   o que afasta os robôs simples que coletam e-mails lendo o HTML.
 */
+const email = decodeMail(site.contato.codigo)
 const revealed = shallowRef(false)
 onMounted(() => (revealed.value = true))
 const masked = computed(() => {
   const [at, dot] = lang.value === 'en' ? [' [at] ', ' [dot] '] : [' [arroba] ', ' [ponto] ']
-  return site.contato.email.replace('@', at).replace(/\./g, dot)
+  return email.replace('@', at).replace(/\./g, dot)
 })
 
 async function copyMail() {
@@ -34,7 +37,7 @@ async function copyMail() {
     setTimeout(() => (copied.value = ''), 1800)
   }
   try {
-    await navigator.clipboard.writeText(site.contato.email)
+    await navigator.clipboard.writeText(email)
     done(t('about.copied'))
   } catch {
     if (mailEl.value) {
@@ -74,7 +77,7 @@ function goRedes() {
         </template>
         <dt>{{ t('about.contact') }}</dt>
         <dd class="contact">
-          <a v-if="revealed" ref="mail" class="mail" :href="`mailto:${site.contato.email}`">{{ site.contato.email }}</a>
+          <a v-if="revealed" ref="mail" class="mail" :href="`mailto:${email}`">{{ email }}</a>
           <span v-else class="mail">{{ masked }}</span>
           <span class="contact-actions">
             <button type="button" class="linkbtn" @click="copyMail">{{ copyLabel }}</button>
