@@ -23,7 +23,8 @@ const { t, lang, assunto, href } = useI18n()
     <span v-if="footline" class="footline">{{ footline }}</span>
 
     <div class="badges">
-      <a class="badge" :href="href('/feed.json')" target="_blank" rel="noopener"><span>feed</span><span>{{ t('badge.rss') }}</span></a>
+      <a class="badge" :href="href('/feed.xml')" target="_blank" rel="noopener"><span>rss</span><span>{{ t('badge.rss') }}</span></a>
+      <a class="badge" :href="href('/feed.json')" target="_blank" rel="noopener"><span>json</span><span>{{ t('badge.json') }}</span></a>
       <span class="badge"><span>vue</span><span>{{ t('badge.vue') }}</span></span>
       <span class="badge"><span>.md</span><span>{{ t('badge.md') }}</span></span>
       <span class="badge"><span>www</span><span>{{ t('badge.www') }}</span></span>

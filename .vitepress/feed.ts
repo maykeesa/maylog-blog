@@ -11,7 +11,7 @@ const site = readContent()
   Feeds dos posts, com o texto completo:
     /feed.json     /feed.xml       → posts em português
     /en/feed.json  /en/feed.xml    → só os posts que têm versão em inglês (index.en.md)
-  JSON Feed 1.1 é o formato do botão do rodapé; o RSS 2.0 fica para leitores que só entendem XML.
+  O RSS 2.0 é o selo principal do rodapé (o formato que todo leitor de feed entende); o JSON Feed 1.1 vem ao lado.
   No build eles viram arquivos; no modo dev são gerados na hora.
 */
 
@@ -156,11 +156,11 @@ export function feedDevServer(): Plugin {
   }
 }
 
-/* links que avisam os leitores de feed, conforme o idioma da página */
+/* links que avisam os leitores de feed, conforme o idioma da página (o RSS primeiro: muitos leitores pegam o primeiro) */
 export function feedLinks(isEn: boolean): [string, Record<string, string>][] {
   const prefix = isEn ? '/en' : ''
   return [
-    ['link', { rel: 'alternate', type: 'application/feed+json', title: `${site.nome} (json)`, href: `${prefix}/feed.json` }],
-    ['link', { rel: 'alternate', type: 'application/rss+xml', title: `${site.nome} (rss)`, href: `${prefix}/feed.xml` }]
+    ['link', { rel: 'alternate', type: 'application/rss+xml', title: `${site.nome} (rss)`, href: `${prefix}/feed.xml` }],
+    ['link', { rel: 'alternate', type: 'application/feed+json', title: `${site.nome} (json)`, href: `${prefix}/feed.json` }]
   ]
 }
