@@ -115,6 +115,8 @@ watch([sort, tema, tag, ano], writeUrl)
 
 <template>
   <Section id="arquivo" :label="t('arch.title')" :side="countText">
+    <p v-if="!posts.length" class="empty">{{ t('log.none') }}</p>
+    <template v-else>
     <div class="tools">
       <FilterDropdown :label="t('arch.sort')" :title="t('arch.sortTitle')" :options="sortOptions" :model-value="sort" @update:model-value="setSort" />
       <FilterDropdown
@@ -169,6 +171,7 @@ watch([sort, tema, tag, ano], writeUrl)
     <p v-if="!filtered.length" class="empty">
       {{ t('arch.empty') }} <button type="button" class="linkbtn" @click="clear">{{ t('arch.clear') }}</button>
     </p>
+    </template>
   </Section>
 </template>
 

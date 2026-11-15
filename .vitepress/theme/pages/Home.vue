@@ -26,8 +26,9 @@ const agora = computed(() => site.agora.itens.map((i) => par(i, lang.value)))
   </Section>
 
   <Section id="recentes" :label="t('home.recent')" :side="entries(posts.length)">
-    <LogList :posts="recentes" head />
-    <p class="more">
+    <p v-if="!posts.length" class="more empty">{{ t('log.none') }}</p>
+    <LogList v-if="posts.length" :posts="recentes" head />
+    <p v-if="posts.length" class="more">
       <a :href="withBase(href('/arquivos'))">{{ t('home.all') }} ({{ ultimo }} → {{ primeiro }})</a>
     </p>
   </Section>
@@ -63,6 +64,9 @@ const agora = computed(() => site.agora.itens.map((i) => par(i, lang.value)))
   font-family: var(--mono);
   font-size: 13px;
   margin: 12px 0 0;
+}
+.empty {
+  color: var(--muted);
 }
 .cols {
   display: grid;
