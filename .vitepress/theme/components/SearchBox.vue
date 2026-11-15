@@ -81,7 +81,6 @@ defineExpose({ focus: () => input.value?.focus() })
           {{ t('search.combine') }}
           <button type="button" @mousedown.prevent @click="use(t('search.ex.combo'))">{{ t('search.ex.combo') }}</button>
         </p>
-        <p class="hint-keys">{{ t('search.keys') }}</p>
       </div>
     </div>
   </form>
@@ -177,7 +176,8 @@ input::placeholder {
   max-width: calc(100vw - 32px);
   display: none;
 }
-.search:hover .hint,
+/* aparece ao passar o mouse ou com o campo vazio em foco; com um filtro dos arquivos aberto, o mouse não abre (não sobrepõe) */
+:root:not(:has(.pop)) .search:hover .hint,
 .search:has(input:placeholder-shown):focus-within .hint {
   display: block;
 }
@@ -229,10 +229,6 @@ input::placeholder {
   margin: 0;
   padding: 4px 10px 8px;
   color: var(--muted);
-}
-.hint .hint-keys {
-  border-top: 1px dotted var(--rule);
-  padding-top: 6px;
 }
 kbd {
   font-family: var(--mono);
